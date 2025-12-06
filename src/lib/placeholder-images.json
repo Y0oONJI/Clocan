@@ -7,28 +7,94 @@
       "imageHint": "fashion style"
     },
     {
-      "id": "onboarding-wishlist",
-      "description": "A person adding an item to a digital wishlist on a tablet.",
-      "imageUrl": "https://images.unsplash.com/photo-1664455340023-214c33a9d0bd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxvbmxpbmUlMjBzaG9wcGluZ3xlbnwwfHx8fDE3NjQ5NTYzOTh8MA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "online shopping"
+      "id": "style-modern",
+      "description": "A person wearing modern, minimalist clothing in a city.",
+      "imageUrl": "https://images.unsplash.com/photo-1763935552436-3442635023ad?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxtb2Rlcm4lMjBmYXNoaW9ufGVufDB8fHx8MTc2NTAyNDYzOXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "modern fashion"
     },
     {
-      "id": "onboarding-save",
-      "description": "A close-up of a clothing tag with details.",
-      "imageUrl": "https://images.unsplash.com/photo-1563302111-eab4b145e6c9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8Y2xvdGhpbmclMjB0YWd8ZW58MHx8fHwxNzY1MDI0MDY1fDA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "clothing tag"
+      "id": "style-vintage",
+      "description": "A person in retro-style clothing.",
+      "imageUrl": "https://images.unsplash.com/photo-1634133118079-317c0d007dae?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHx2aW50YWdlJTIwZmFzaGlvbnxlbnwwfHx8fDE3NjUwMjQ2Mzl8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "vintage fashion"
     },
     {
-      "id": "onboarding-ai",
-      "description": "Abstract representation of AI and fashion.",
-      "imageUrl": "https://images.unsplash.com/photo-1587038255943-390cadaefffe?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxhaSUyMGZhc2hpb258ZW58MHx8fHwxNzY1MDI0MDY1fDA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "ai fashion"
+      "id": "style-bohemian",
+      "description": "A person with a flowing dress in a nature setting.",
+      "imageUrl": "https://images.unsplash.com/photo-1617391258031-f8d80b22fb35?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxib2hlbWlhbiUyMGZhc2hpb258ZW58MHx8fHwxNzY0OTA1OTYzfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "bohemian fashion"
     },
     {
-      "id": "onboarding-notify",
-      "description": "A smartphone showing a price drop notification.",
-      "imageUrl": "https://images.unsplash.com/photo-1745270917449-c2e2c5806586?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxwcmljZSUyMGFsZXJ0fGVufDB8fHx8MTc2NTAyNDA2NXww&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "price alert"
+      "id": "style-streetwear",
+      "description": "A person in trendy streetwear with sneakers.",
+      "imageUrl": "https://images.unsplash.com/photo-1523398002811-999ca8dec234?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxzdHJlZXR3ZWFyJTIwZmFzaGlvbnxlbnwwfHx8fDE3NjUwMjQ2Mzl8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "streetwear fashion"
+    },
+    {
+      "id": "style-classic",
+      "description": "A person in a timeless, elegant outfit.",
+      "imageUrl": "https://images.unsplash.com/photo-1681028442065-6d1a85eea2ef?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxjbGFzc2ljJTIwZmFzaGlvbnxlbnwwfHx8fDE3NjUwMjQ2Mzl8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "classic fashion"
+    },
+    {
+      "id": "style-minimalist",
+      "description": "A person in a simple, monochrome outfit.",
+      "imageUrl": "https://images.unsplash.com/photo-1580837428500-74aa7eefc672?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8bWluaW1hbGlzdCUyMGZhc2hpb258ZW58MHx8fHwxNzY1MDI0NjM5fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "minimalist fashion"
+    },
+    {
+      "id": "inspiration-1",
+      "description": "Stylish person walking on a city street.",
+      "imageUrl": "https://images.unsplash.com/photo-1532332248682-206cc786359f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8c3RyZWV0JTIwc3R5bGV8ZW58MHx8fHwxNzY0OTQxMjE3fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "street style"
+    },
+    {
+      "id": "inspiration-2",
+      "description": "A casual weekend outfit.",
+      "imageUrl": "https://images.unsplash.com/photo-1565378074766-195b0fee6024?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8Y2FzdWFsJTIwb3V0Zml0fGVufDB8fHx8MTc2NTAyNDYzOXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "casual outfit"
+    },
+    {
+      "id": "inspiration-3",
+      "description": "An elegant evening dress.",
+      "imageUrl": "https://images.unsplash.com/photo-1583039949165-96ee24b0d8de?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxldmVuaW5nJTIwZHJlc3N8ZW58MHx8fHwxNzY1MDE2MTczfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "evening dress"
+    },
+    {
+      "id": "inspiration-4",
+      "description": "A professional work outfit.",
+      "imageUrl": "https://images.unsplash.com/photo-1597460605033-6b2302cd79d8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHx3b3JrJTIwb3V0Zml0fGVufDB8fHx8MTc2NTAyNDYzOXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "work outfit"
+    },
+    {
+      "id": "inspiration-5",
+      "description": "A comfortable and stylish travel outfit.",
+      "imageUrl": "https://images.unsplash.com/photo-1561459711-fd124d562ee2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHx0cmF2ZWwlMjBvdXRmaXR8ZW58MHx8fHwxNzY1MDI0NjM5fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "travel outfit"
+    },
+    {
+      "id": "inspiration-6",
+      "description": "A summer beach outfit.",
+      "imageUrl": "https://images.unsplash.com/photo-1556226421-8d2456349383?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxiZWFjaCUyMG91dGZpdHxlbnwwfHx8fDE3NjUwMjQ2Mzl8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "beach outfit"
+    },
+    {
+      "id": "inspiration-7",
+      "description": "A cozy winter outfit.",
+      "imageUrl": "https://images.unsplash.com/photo-1613869810371-3068cc3ac5b9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHx3aW50ZXIlMjBvdXRmaXR8ZW58MHx8fHwxNzY1MDI0NjM5fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "winter outfit"
+    },
+    {
+      "id": "inspiration-8",
+      "description": "A sporty, athletic look.",
+      "imageUrl": "https://images.unsplash.com/photo-1764675107996-7de11cc20b8f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxhdGhsZXRpYyUyMGxvb2t8ZW58MHx8fHwxNzY1MDI0NjM5fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "athletic look"
+    },
+    {
+      "id": "inspiration-9",
+      "description": "A unique, artistic outfit.",
+      "imageUrl": "https://images.unsplash.com/photo-1688822671720-0a8be7188c82?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxhcnRpc3RpYyUyMG91dGZpdHxlbnwwfHx8fDE3NjUwMjQ2Mzl8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "artistic outfit"
     }
   ]
 }

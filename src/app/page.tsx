@@ -1,5 +1,5 @@
-import { Onboarding } from "@/components/onboarding";
+import { StyleQuiz } from "@/components/style-quiz";
 
 export default function Home() {
-  return <Onboarding />;
+  return <StyleQuiz />;
 }
