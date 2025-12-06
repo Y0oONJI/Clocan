@@ -1,161 +1,180 @@
+
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState } from "react";
 import Image from "next/image";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-  type CarouselApi,
-} from "@/components/ui/carousel";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import {
-  Heart,
-  ShoppingBag,
-  Sparkles,
-  Bell,
-  ArrowRight,
-  LayoutGrid,
-} from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Check, ArrowRight, ArrowLeft } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import { Input } from "@/components/ui/input";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { cn } from "@/lib/utils";
 
-const onboardingSlides = [
-  {
-    image: PlaceHolderImages.find((img) => img.id === "onboarding-welcome"),
-    icon: LayoutGrid,
-    title: "Welcome to Closet Canvas",
-    description:
-      "Design your dream wardrobe and discover endless style inspiration. Your fashion journey starts here.",
-  },
-  {
-    image: PlaceHolderImages.find((img) => img.id === "onboarding-wishlist"),
-    icon: Heart,
-    title: "Create Your Wishlists",
-    description:
-      "Organize your desires into beautiful wishlists. Curate collections for every occasion, season, or mood.",
-  },
-  {
-    image: PlaceHolderImages.find((img) => img.id === "onboarding-save"),
-    icon: ShoppingBag,
-    title: "Save Items Instantly",
-    description:
-      "Found something you love? Save items from any online store with all the details—price, color, size, and more.",
-  },
-  {
-    image: PlaceHolderImages.find((img) => img.id === "onboarding-ai"),
-    icon: Sparkles,
-    title: "AI-Powered Style Suggestions",
-    description:
-      "Let our AI stylist help you. Get personalized outfit suggestions and find alternatives based on your wishlist items.",
-  },
-  {
-    image: PlaceHolderImages.find((img) => img.id === "onboarding-notify"),
-    icon: Bell,
-    title: "Never Miss a Deal",
-    description:
-      "Set your target price and get notified instantly when an item on your wishlist goes on sale. Shop smarter, not harder.",
-  },
+const styles = [
+  "Casual",
+  "Chic",
+  "Street",
+  "Vintage",
+  "Bohemian",
+  "Minimalist",
+  "Sporty",
+  "Preppy",
 ];
 
+const colors = [
+  "bg-red-500",
+  "bg-orange-500",
+  "bg-yellow-400",
+  "bg-green-500",
+  "bg-blue-500",
+  "bg-indigo-500",
+  "bg-purple-500",
+  "bg-pink-400",
+  "bg-black",
+  "bg-white",
+  "bg-gray-400",
+  "bg-stone-500",
+];
+
+const TotalSteps = 4;
+
 export function Onboarding() {
-  const [api, setApi] = useState<CarouselApi>();
-  const [current, setCurrent] = useState(0);
-  const [count, setCount] = useState(0);
+  const [step, setStep] = useState(1);
+  const [selectedStyles, setSelectedStyles] = useState<string[]>([]);
+  const [selectedColors, setSelectedColors] = useState<string[]>([]);
+  const [favoriteBrands, setFavoriteBrands] = useState("");
 
-  const updateCarouselState = useCallback(() => {
-    if (!api) return;
-    setCount(api.scrollSnapList().length);
-    setCurrent(api.selectedScrollSnap());
-  }, [api]);
-
-  useEffect(() => {
-    if (!api) return;
-    updateCarouselState();
-    api.on("select", updateCarouselState);
-    api.on("reInit", updateCarouselState);
-    return () => {
-      api.off("select", updateCarouselState);
-      api.off("reInit", updateCarouselState);
-    };
-  }, [api, updateCarouselState]);
+  const toggleSelection = (
+    item: string,
+    selection: string[],
+    setSelection: React.Dispatch<React.SetStateAction<string[]>>
+  ) => {
+    if (selection.includes(item)) {
+      setSelection(selection.filter((i) => i !== item));
+    } else {
+      setSelection([...selection, item]);
+    }
+  };
+  
+  const welcomeImage = PlaceHolderImages.find((img) => img.id === "onboarding-welcome");
 
   return (
     <main className="flex flex-col items-center justify-center min-h-screen bg-background text-foreground p-4 sm:p-6 lg:p-8">
-      <Carousel
-        setApi={setApi}
-        className="w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl"
-      >
-        <CarouselContent>
-          {onboardingSlides.map((slide, index) => (
-            <CarouselItem key={index}>
-              <Card className="overflow-hidden border-2 shadow-lg rounded-xl">
-                <CardContent className="relative flex flex-col items-center justify-center p-6 text-center aspect-[4/3] sm:p-10 md:p-12">
-                  {slide.image && (
-                    <Image
-                      src={slide.image.imageUrl}
-                      alt={slide.image.description}
-                      fill
-                      className="object-cover opacity-10"
-                      data-ai-hint={slide.image.imageHint}
-                      priority={index === 0}
-                    />
-                  )}
-                  <div className="relative z-10 flex flex-col items-center justify-center">
-                    <div className="mb-4 bg-primary/10 p-4 rounded-full">
-                      <slide.icon className="w-8 h-8 text-primary" />
-                    </div>
-                    <h2 className="text-2xl sm:text-3xl font-bold font-headline text-primary mb-2">
-                      {slide.title}
-                    </h2>
-                    <p className="text-sm sm:text-base text-foreground/80 max-w-md">
-                      {slide.description}
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            </CarouselItem>
-          ))}
-          <CarouselItem>
-            <Card className="overflow-hidden border-2 shadow-lg rounded-xl">
-              <CardContent className="flex flex-col items-center justify-center p-10 text-center aspect-[4/3] sm:p-14 md:p-16">
-                <h2 className="text-3xl sm:text-4xl font-bold font-headline text-primary mb-4">
-                  Let's Get Started
-                </h2>
-                <p className="text-base sm:text-lg text-foreground/80 mb-8">
-                  Your style evolution awaits.
-                </p>
+      <Card className="w-full max-w-md mx-auto shadow-2xl rounded-2xl overflow-hidden">
+        <CardHeader className="p-6">
+          <Progress value={(step / TotalSteps) * 100} className="w-full h-2 mb-4" />
+          {step === 1 && (
+            <div>
+              <CardTitle className="text-3xl font-headline text-primary">Welcome to Closet Canvas!</CardTitle>
+              <CardDescription className="mt-2">Let's discover your personal style. This will help us recommend the perfect items for you.</CardDescription>
+            </div>
+          )}
+          {step === 2 && (
+            <div>
+              <CardTitle className="font-headline text-primary">Which styles resonate with you?</CardTitle>
+              <CardDescription>Select all that apply. This helps us understand your vibe.</CardDescription>
+            </div>
+          )}
+          {step === 3 && (
+            <div>
+              <CardTitle className="font-headline text-primary">What are your favorite colors?</CardTitle>
+              <CardDescription>Choose the colors you love to wear.</CardDescription>
+            </div>
+          )}
+          {step === 4 && (
+             <div>
+              <CardTitle className="font-headline text-primary">Any favorite brands?</CardTitle>
+              <CardDescription>List some brands you love. (Optional)</CardDescription>
+            </div>
+          )}
+        </CardHeader>
+        <CardContent className="p-6">
+          {step === 1 && (
+            <div className="relative aspect-video rounded-lg overflow-hidden">
+             {welcomeImage && (
+                <Image
+                  src={welcomeImage.imageUrl}
+                  alt={welcomeImage.description}
+                  fill
+                  className="object-cover"
+                  data-ai-hint={welcomeImage.imageHint}
+                  priority
+                />
+              )}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+            </div>
+          )}
+
+          {step === 2 && (
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+              {styles.map((style) => (
                 <Button
-                  size="lg"
-                  className="bg-accent hover:bg-accent/90 text-accent-foreground rounded-full px-8 py-6 text-base font-bold"
+                  key={style}
+                  variant={selectedStyles.includes(style) ? "default" : "outline"}
+                  className="py-6 rounded-lg text-sm"
+                  onClick={() => toggleSelection(style, selectedStyles, setSelectedStyles)}
                 >
-                  Start Your Collection
-                  <ArrowRight className="ml-2 w-5 h-5" />
+                  {style}
+                  {selectedStyles.includes(style) && <Check className="w-4 h-4 ml-2" />}
                 </Button>
-              </CardContent>
-            </Card>
-          </CarouselItem>
-        </CarouselContent>
-        <CarouselPrevious className="hidden sm:inline-flex -left-12 text-primary" />
-        <CarouselNext className="hidden sm:inline-flex -right-12 text-primary" />
-      </Carousel>
-      <div className="flex gap-2.5 mt-8">
-        {Array.from({ length: count }).map((_, i) => (
-          <button
-            key={i}
-            onClick={() => api?.scrollTo(i)}
-            className={cn(
-              "h-2 rounded-full transition-all duration-300",
-              i === current ? "w-6 bg-primary" : "w-2 bg-primary/30"
+              ))}
+            </div>
+          )}
+
+          {step === 3 && (
+            <div className="grid grid-cols-4 sm:grid-cols-6 gap-4">
+              {colors.map((color) => (
+                <button
+                  key={color}
+                  onClick={() => toggleSelection(color, selectedColors, setSelectedColors)}
+                  className={cn(
+                    "w-12 h-12 rounded-full border-2 transition-all",
+                    color,
+                    selectedColors.includes(color) ? "border-primary ring-2 ring-primary ring-offset-2" : "border-transparent"
+                  )}
+                  aria-label={`Select color ${color}`}
+                >
+                {selectedColors.includes(color) && <Check className="w-6 h-6 mx-auto text-white mix-blend-difference" />}
+                </button>
+              ))}
+            </div>
+          )}
+          
+          {step === 4 && (
+            <div className="flex flex-col gap-4">
+              <Input
+                placeholder="e.g., Nike, Zara, Gucci"
+                value={favoriteBrands}
+                onChange={(e) => setFavoriteBrands(e.target.value)}
+              />
+               <Button
+                size="lg"
+                className="w-full bg-accent hover:bg-accent/90 text-accent-foreground rounded-full"
+                onClick={() => alert("Onboarding complete!")}
+              >
+                Complete Setup
+                <ArrowRight className="ml-2 w-5 h-5" />
+              </Button>
+            </div>
+          )}
+
+          <div className="flex justify-between mt-8">
+            {step > 1 ? (
+              <Button variant="outline" onClick={() => setStep(step - 1)}>
+                <ArrowLeft className="mr-2 w-4 h-4" />
+                Back
+              </Button>
+            ) : <div></div>}
+            {step < TotalSteps && (
+              <Button onClick={() => setStep(step + 1)}>
+                Next
+                <ArrowRight className="ml-2 w-4 h-4" />
+              </Button>
             )}
-            aria-label={`Go to slide ${i + 1}`}
-            aria-current={i === current}
-          />
-        ))}
-      </div>
+          </div>
+        </CardContent>
+      </Card>
     </main>
   );
 }
