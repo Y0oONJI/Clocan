@@ -1,3 +1,34 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "onboarding-welcome",
+      "description": "A stylish flat lay of clothing and accessories.",
+      "imageUrl": "https://images.unsplash.com/photo-1685464583143-f9802b19d98c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxmYXNoaW9uJTIwc3R5bGV8ZW58MHx8fHwxNzY0OTY2MjUwfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "fashion style"
+    },
+    {
+      "id": "onboarding-wishlist",
+      "description": "A person adding an item to a digital wishlist on a tablet.",
+      "imageUrl": "https://images.unsplash.com/photo-1664455340023-214c33a9d0bd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxvbmxpbmUlMjBzaG9wcGluZ3xlbnwwfHx8fDE3NjQ5NTYzOTh8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "online shopping"
+    },
+    {
+      "id": "onboarding-save",
+      "description": "A close-up of a clothing tag with details.",
+      "imageUrl": "https://images.unsplash.com/photo-1563302111-eab4b145e6c9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8Y2xvdGhpbmclMjB0YWd8ZW58MHx8fHwxNzY1MDI0MDY1fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "clothing tag"
+    },
+    {
+      "id": "onboarding-ai",
+      "description": "Abstract representation of AI and fashion.",
+      "imageUrl": "https://images.unsplash.com/photo-1587038255943-390cadaefffe?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxhaSUyMGZhc2hpb258ZW58MHx8fHwxNzY1MDI0MDY1fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "ai fashion"
+    },
+    {
+      "id": "onboarding-notify",
+      "description": "A smartphone showing a price drop notification.",
+      "imageUrl": "https://images.unsplash.com/photo-1745270917449-c2e2c5806586?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxwcmljZSUyMGFsZXJ0fGVufDB8fHx8MTc2NTAyNDA2NXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "price alert"
+    }
+  ]
 }
