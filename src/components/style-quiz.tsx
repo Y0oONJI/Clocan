@@ -1,6 +1,56 @@
 "use client";
 
+/**
+ * Style Quiz Component
+ * 
+ * @fileoverview 사용자 스타일 선호도를 파악하는 대화형 온보딩 퀴즈 컴포넌트
+ * 
+ * @description
+ * 5단계 온보딩 플로우를 제공하여 사용자의 스타일 선호도를 수집합니다:
+ * 1. 환영 화면
+ * 2. 스타일 선택 (Modern, Vintage, etc.)
+ * 3. 색상 팔레트 선택 (Neutrals, Pastels, etc.)
+ * 4. 영감 이미지 선택
+ * 5. 완료 화면
+ * 
+ * @component
+ * @example
+ * // 페이지에서 사용
+ * import { StyleQuiz } from '@/components/style-quiz';
+ * 
+ * export default function QuizPage() {
+ *   return <StyleQuiz />;
+ * }
+ * 
+ * @features
+ * - Progressive disclosure: 한 번에 하나의 질문만 표시
+ * - Immediate feedback: 선택 시 즉각적인 시각적 피드백
+ * - Validation: 필수 선택 항목 검증
+ * - Navigation: 이전 단계로 돌아가기 가능
+ * - Progress tracking: 진행도 표시 바
+ * 
+ * @state
+ * - step: 현재 단계 (0-4)
+ * - selectedStyles: 선택된 스타일 ID 배열
+ * - selectedColors: 선택된 색상 팔레트 ID 배열
+ * - selectedInspirations: 선택된 영감 이미지 ID 배열
+ * 
+ * @navigation
+ * 완료 시 /style-quiz/result로 이동하며 URL 파라미터로 선택 항목 전달
+ * 
+ * @todo 향후 개선 사항
+ * - [ ] 컴포넌트를 작은 단위로 분해 (SelectionCard, QuizStep 등)
+ * - [ ] useQuizState 커스텀 훅으로 상태 관리 분리
+ * - [ ] 로컬 스토리지에 진행 상황 저장
+ * - [ ] 애니메이션 전환 효과 추가
+ * 
+ * @version 1.0.0
+ * @since 2025-12-06
+ * @author Closet Canvas Team
+ */
+
 import React, { useState, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -8,37 +58,38 @@ import { Progress } from "@/components/ui/progress";
 import { Check, ArrowRight, PartyPopper } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
+import { QUIZ_STYLES, QUIZ_COLORS, QUIZ_INSPIRATION_IMAGES } from "@/data/quiz-data";
 
-const styles = [
-  { id: "modern", name: "Modern", imageId: "style-modern" },
-  { id: "vintage", name: "Vintage", imageId: "style-vintage" },
-  { id: "bohemian", name: "Bohemian", imageId: "style-bohemian" },
-  { id: "streetwear", name: "Streetwear", imageId: "style-streetwear" },
-  { id: "classic", name: "Classic", imageId: "style-classic" },
-  { id: "minimalist", name: "Minimalist", imageId: "style-minimalist" },
-];
-
-const colors = [
-  { id: "neutrals", name: "Neutrals", palette: ["#EAE0D5", "#C6AC8F", "#594A47", "#0A0908"] },
-  { id: "pastels", name: "Pastels", palette: ["#F7CAC9", "#92A8D1", "#B5EAD7", "#E2F0CB"] },
-  { id: "brights", name: "Brights", palette: ["#FF5733", "#33FF57", "#3357FF", "#FF33A1"] },
-  { id: "monochrome", name: "Monochrome", palette: ["#000000", "#555555", "#AAAAAA", "#FFFFFF"] },
-  { id: "earthy", name: "Earthy", palette: ["#A87B5F", "#5D4C46", "#3E362E", "#C3BBA4"] },
-  { id: "jewel", name: "Jewel Tones", palette: ["#003153", "#702963", "#990F02", "#0F5257"] },
-];
-
-const inspirationImages = [
-  "inspiration-1", "inspiration-2", "inspiration-3",
-  "inspiration-4", "inspiration-5", "inspiration-6",
-  "inspiration-7", "inspiration-8", "inspiration-9",
-];
-
+/**
+ * StyleQuiz Main Component
+ * 
+ * @returns {JSX.Element} 스타일 퀴즈 UI
+ * 
+ * @example
+ * <StyleQuiz />
+ */
 export function StyleQuiz() {
+  const router = useRouter();
   const [step, setStep] = useState(0);
   const [selectedStyles, setSelectedStyles] = useState<string[]>([]);
   const [selectedColors, setSelectedColors] = useState<string[]>([]);
   const [selectedInspirations, setSelectedInspirations] = useState<string[]>([]);
 
+  /**
+   * 다중 선택 토글 핸들러
+   * 
+   * @function toggleSelection
+   * @param {string[]} selection - 현재 선택된 항목 배열
+   * @param {React.Dispatch<React.SetStateAction<string[]>>} setSelection - 상태 업데이트 함수
+   * @param {string} item - 토글할 항목 ID
+   * 
+   * @description
+   * 클릭한 항목이 이미 선택되어 있으면 제거하고, 없으면 추가합니다.
+   * 다중 선택을 지원하며 선택 개수 제한은 없습니다.
+   * 
+   * @example
+   * onClick={() => toggleSelection(selectedStyles, setSelectedStyles, 'modern')}
+   */
   const toggleSelection = (
     selection: string[],
     setSelection: React.Dispatch<React.SetStateAction<string[]>>,
@@ -62,7 +113,7 @@ export function StyleQuiz() {
       description: "Select one or more styles that best represent you.",
       content: (
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-          {styles.map((style) => {
+          {QUIZ_STYLES.map((style) => {
             const image = PlaceHolderImages.find((img) => img.id === style.imageId);
             return (
             <Card
@@ -106,7 +157,7 @@ export function StyleQuiz() {
       description: "Choose the palettes that catch your eye.",
       content: (
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-          {colors.map((color) => (
+          {QUIZ_COLORS.map((color) => (
             <Card
               key={color.id}
               onClick={() => toggleSelection(selectedColors, setSelectedColors, color.id)}
@@ -141,7 +192,7 @@ export function StyleQuiz() {
       description: "Select the outfits that you would wear.",
       content: (
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4">
-          {inspirationImages.map((id) => {
+          {QUIZ_INSPIRATION_IMAGES.map((id) => {
             const image = PlaceHolderImages.find((img) => img.id === id);
             return (
             <div
@@ -196,15 +247,51 @@ export function StyleQuiz() {
   const currentStep = steps[step];
   const progress = (step / (steps.length - 1)) * 100;
   
+  /**
+   * 다음 단계로 이동 핸들러
+   * 
+   * @function handleNext
+   * 
+   * @description
+   * 현재 단계가 마지막이 아니면 다음 단계로 이동합니다.
+   * 마지막 단계(완료 화면)에서는 결과 페이지로 리다이렉트하며,
+   * URL 파라미터로 사용자의 모든 선택 항목을 전달합니다.
+   * 
+   * @navigation
+   * 최종 목적지: /style-quiz/result?styles=...&colors=...&inspirations=...
+   * 
+   * @example
+   * <Button onClick={handleNext}>Next</Button>
+   */
   const handleNext = () => {
     if (step < steps.length - 1) {
       setStep(step + 1);
     } else {
-      // Handle completion - e.g., navigate to the main app
-      console.log("Onboarding complete!", { selectedStyles, selectedColors, selectedInspirations });
+      // Navigate to result page with selections
+      const params = new URLSearchParams({
+        styles: selectedStyles.join(","),
+        colors: selectedColors.join(","),
+        inspirations: selectedInspirations.join(","),
+      });
+      router.push(`/style-quiz/result?${params.toString()}`);
     }
   };
 
+  /**
+   * 다음 버튼 활성화 여부 계산
+   * 
+   * @constant isNextDisabled
+   * @type {boolean}
+   * 
+   * @description
+   * 현재 단계에서 선택이 필수인 경우, 최소 1개 이상 선택되어야 버튼이 활성화됩니다.
+   * 선택이 필수가 아닌 단계(환영, 완료 화면)에서는 항상 활성화됩니다.
+   * 
+   * @dependencies [step, selectedStyles, selectedColors, selectedInspirations]
+   * @optimization useMemo를 사용하여 불필요한 재계산 방지
+   * 
+   * @returns {boolean} true면 버튼 비활성화, false면 활성화
+   */
   const isNextDisabled = useMemo(() => {
     if (!currentStep.isSelectionRequired) return false;
     return currentStep.selection ? currentStep.selection.length === 0 : true;
