@@ -184,7 +184,7 @@ export function StyleQuiz() {
       description: "We've personalized your experience. Get ready to build your dream closet.",
       content: (
         <div className="flex flex-col items-center text-center">
-            <PartyPopper className="w-16 h-16 text-accent mb-4" />
+            <PartyPopper className="w-16 h-16 text-primary mb-4" />
             <p className="text-muted-foreground mb-6">Your style profile is ready.</p>
         </div>
       ),
@@ -233,7 +233,7 @@ export function StyleQuiz() {
 
           <Button
             size="lg"
-            className="bg-accent hover:bg-accent/90 text-accent-foreground rounded-full px-8 py-6 text-base font-bold"
+            className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full px-8 py-6 text-base font-bold"
             onClick={handleNext}
             disabled={isNextDisabled}
           >
