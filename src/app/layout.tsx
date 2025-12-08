@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { Toaster } from "@/components/ui/toaster";
 import "./globals.css";
 
@@ -27,7 +28,9 @@ export default function RootLayout({
         />
       </head>
       <body className="font-body antialiased">
-        {children}
+        <ErrorBoundary>
+          {children}
+        </ErrorBoundary>
         <Toaster />
       </body>
     </html>
