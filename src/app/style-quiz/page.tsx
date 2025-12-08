@@ -4,3 +4,7 @@ export default function StyleQuizPage() {
   return <StyleQuiz />;
 }
 
+
+
+
+

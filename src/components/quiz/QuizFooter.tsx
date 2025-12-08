@@ -57,3 +57,7 @@ export function QuizFooter({ currentStep, totalSteps, onPrev }: QuizFooterProps)
   );
 }
 
+
+
+
+
