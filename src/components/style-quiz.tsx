@@ -37,44 +37,44 @@ import type { QuizStepConfig } from "@/types/quiz";
 const QUIZ_STEPS: QuizStepConfig[] = [
   {
     id: "welcome",
-    title: "Find Your Personal Style",
-    description: "Complete this quick quiz to help us understand your unique taste.",
+      title: "Find Your Personal Style",
+      description: "Complete this quick quiz to help us understand your unique taste.",
     isSelectionRequired: false,
-    buttonText: "Let's start!",
-  },
-  {
+      buttonText: "Let's start!",
+    },
+    {
     id: "style-selection",
-    title: "Which styles are you drawn to?",
-    description: "Select one or more styles that best represent you.",
+      title: "Which styles are you drawn to?",
+      description: "Select one or more styles that best represent you.",
     component: StyleSelectionStep,
     isSelectionRequired: true,
-    buttonText: "Next",
+      buttonText: "Next",
     category: "styles",
-  },
-  {
+    },
+    {
     id: "color-selection",
-    title: "What colors do you prefer?",
-    description: "Choose the palettes that catch your eye.",
+      title: "What colors do you prefer?",
+      description: "Choose the palettes that catch your eye.",
     component: ColorSelectionStep,
     isSelectionRequired: true,
-    buttonText: "Next",
+      buttonText: "Next",
     category: "colors",
-  },
-  {
+    },
+    {
     id: "inspiration-selection",
-    title: "Get Inspired",
-    description: "Select the outfits that you would wear.",
+      title: "Get Inspired",
+      description: "Select the outfits that you would wear.",
     component: InspirationSelectionStep,
     isSelectionRequired: true,
-    buttonText: "Finish",
+      buttonText: "Finish",
     category: "inspirations",
-  },
-  {
+    },
+     {
     id: "completion",
-    title: "You're All Set!",
-    description: "We've personalized your experience. Get ready to build your dream closet.",
+      title: "You're All Set!",
+      description: "We've personalized your experience. Get ready to build your dream closet.",
     isSelectionRequired: false,
-    buttonText: "Explore Your Closet Canvas",
+      buttonText: "Explore Your Closet Canvas",
   },
 ];
 
@@ -165,7 +165,7 @@ export function StyleQuiz() {
               {currentStepConfig.description}
             </p>
           </div>
-
+          
           {/* Step Content */}
           <div className="w-full mb-8">{renderStepContent()}</div>
 
