@@ -29,7 +29,7 @@ export default function RootLayout({
       </head>
       <body className="font-body antialiased">
         <ErrorBoundary>
-          {children}
+        {children}
         </ErrorBoundary>
         <Toaster />
       </body>
