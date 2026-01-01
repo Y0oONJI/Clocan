@@ -22,3 +22,8 @@ logging:
     com.example.wardrobe: DEBUG
     org.hibernate.SQL: DEBUG
 
+# JWT 설정
+jwt:
+  secret: ${JWT_SECRET:defaultSecretKeyForDevelopmentOnlyChangeInProduction}
+  expiration: 1800 # 30분 (초 단위)
+
