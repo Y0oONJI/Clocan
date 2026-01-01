@@ -1,5 +1,6 @@
 package com.example.wardrobe.common.exception;
 
+import com.example.wardrobe.domain.auth.exception.InvalidCredentialsException;
 import com.example.wardrobe.domain.user.exception.EmailAlreadyExistsException;
 import com.example.wardrobe.domain.user.exception.UserNotFoundException;
 import jakarta.validation.ConstraintViolationException;
@@ -62,6 +63,25 @@ public class GlobalExceptionHandler {
                 request.getDescription(false).replace("uri=", "")
         );
         return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
+    }
+
+    /**
+     * 잘못된 인증 정보 예외 처리
+     * 
+     * @param ex InvalidCredentialsException
+     * @param request WebRequest
+     * @return 401 Unauthorized 응답
+     */
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidCredentialsException(
+            InvalidCredentialsException ex,
+            WebRequest request) {
+        ErrorResponse errorResponse = ErrorResponse.of(
+                HttpStatus.UNAUTHORIZED.value(),
+                ex.getMessage(),
+                request.getDescription(false).replace("uri=", "")
+        );
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
     }
 
     /**
