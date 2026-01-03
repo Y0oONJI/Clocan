@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -14,7 +15,39 @@ import {
 import { ArrowRight, ClipboardList, ScanLine, Sparkles } from "lucide-react";
 import { Header } from "@/components/Header";
 
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8080";
+
+async function pingFeature1() {
+  const url = `${API_BASE}/api/v1/feature1/ping`;
+
+  console.log("[FE] calling:", url);
+
+  try {
+    const res = await fetch(url);
+    const data = await res.json();
+
+    console.log("[FE] response:", data);
+    alert(data.message); // 일단은 화면으로 확인하기 제일 쉬움!
+    return data;
+  } catch (error) {
+    console.error("[FE] error:", error);
+    alert(`API 호출 실패: ${error instanceof Error ? error.message : "알 수 없는 오류"}`);
+    throw error;
+  }
+}
+
 export default function Home() {
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handlePingClick = async () => {
+    setIsLoading(true);
+    try {
+      await pingFeature1();
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
       {/* Fixed Header Navigation */}
@@ -279,6 +312,24 @@ export default function Home() {
               <CarouselNext className="hidden md:flex" />
             </Carousel>
           </div>
+        </div>
+      </section>
+
+      {/* API Test Section (Development) */}
+      <section className="w-full py-8 px-4 sm:px-8 bg-muted/30 border-t">
+        <div className="max-w-7xl mx-auto text-center">
+          <Button
+            onClick={handlePingClick}
+            disabled={isLoading}
+            variant="outline"
+            size="sm"
+            className="text-xs"
+          >
+            {isLoading ? "API 호출 중..." : "API 테스트 (Feature1 Ping)"}
+          </Button>
+          <p className="text-xs text-muted-foreground mt-2">
+            API Base: {API_BASE}
+          </p>
         </div>
       </section>
 
