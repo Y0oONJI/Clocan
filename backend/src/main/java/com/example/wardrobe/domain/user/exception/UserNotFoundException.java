@@ -18,5 +18,14 @@ public class UserNotFoundException extends RuntimeException {
     public UserNotFoundException(Long userId) {
         super("사용자를 찾을 수 없습니다. ID: " + userId);
     }
+
+    /**
+     * 생성자
+     * 
+     * @param message 에러 메시지
+     */
+    public UserNotFoundException(String message) {
+        super(message);
+    }
 }
 
