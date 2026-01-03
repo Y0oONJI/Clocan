@@ -9,6 +9,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -50,6 +52,31 @@ public class UserController {
         );
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    /**
+     * 현재 로그인한 사용자 프로필 조회
+     * 
+     * @return 현재 사용자 프로필 응답
+     */
+    @GetMapping("/me")
+    public ResponseEntity<UserProfileResponse> getCurrentUserProfile() {
+        // SecurityContext에서 현재 인증된 사용자 이메일 가져오기
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+
+        // 이메일로 사용자 조회
+        User user = userService.getUserByEmail(email);
+
+        UserProfileResponse response = new UserProfileResponse(
+                user.getId(),
+                user.getEmail(),
+                user.getNickname(),
+                user.getProfileImageUrl(),
+                user.getCreatedAt()
+        );
+
+        return ResponseEntity.ok(response);
     }
 
     /**

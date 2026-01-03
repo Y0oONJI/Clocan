@@ -72,6 +72,18 @@ public class UserService {
     }
 
     /**
+     * 이메일로 사용자 조회
+     * 
+     * @param email 사용자 이메일
+     * @return User 엔티티
+     * @throws UserNotFoundException 사용자를 찾을 수 없는 경우
+     */
+    public User getUserByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("이메일: " + email));
+    }
+
+    /**
      * 프로필 수정
      * 
      * @param userId 사용자 ID
