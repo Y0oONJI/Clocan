@@ -10,11 +10,30 @@ export default {
   theme: {
     extend: {
       fontFamily: {
+        sans: ['var(--font-noto-sans-kr)', 'sans-serif'],
         body: ['Lora', 'serif'],
         headline: ['Playfair Display', 'serif'],
         code: ['monospace'],
       },
+      fontSize: {
+        'h1': ['48px', { lineHeight: '1.2', fontWeight: '700' }],
+        'h2': ['36px', { lineHeight: '1.3', fontWeight: '700' }],
+        'h3': ['28px', { lineHeight: '1.3', fontWeight: '600' }],
+        'h4': ['24px', { lineHeight: '1.4', fontWeight: '600' }],
+        'body1': ['16px', { lineHeight: '1.5', fontWeight: '400' }],
+        'body2': ['14px', { lineHeight: '1.5', fontWeight: '400' }],
+      },
       colors: {
+        // Gray Scale Design System
+        gray: {
+          900: '#171717', // Main Text
+          700: '#404040', // Sub Text
+          500: '#737373', // Disabled
+          300: '#d4d4d4', // Border
+          100: '#f5f5f5', // Background
+        },
+        white: '#ffffff',
+        // Existing shadcn/ui colors
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
         card: {
