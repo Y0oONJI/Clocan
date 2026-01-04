@@ -1,6 +1,6 @@
 # 📋 Task Management
 
-**프로젝트:** Closet Canvas  
+**프로젝트:** Clocan  
 **생성일:** 2025-12-07  
 **총 태스크:** 10개
 
@@ -369,7 +369,7 @@ git push origin feature/FE-002-error-boundary
 
 ---
 
-**Maintained by:** Closet Canvas Development Team  
+**Maintained by:** Clocan Development Team  
 **Last Updated:** 2025-12-07
 
 
