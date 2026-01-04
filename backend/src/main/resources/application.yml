@@ -2,6 +2,13 @@ spring:
   application:
     name: wardrobe-backend
   
+  # HTTP 인코딩 설정 (한글 깨짐 방지)
+  http:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+  
   datasource:
     url: jdbc:h2:mem:wardrobe_db
     username: sa
