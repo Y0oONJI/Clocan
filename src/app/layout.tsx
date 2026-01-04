@@ -11,7 +11,7 @@ const notoSansKR = Noto_Sans_KR({
 });
 
 export const metadata: Metadata = {
-  title: "Closet Canvas",
+  title: "Clocan",
   description: "Your digital wardrobe for endless style inspiration.",
 };
 
