@@ -42,13 +42,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             HttpServletRequest request,
             HttpServletResponse response,
             FilterChain filterChain) throws ServletException, IOException {
-
-        String requestPath = request.getRequestURI();
-        log.info("🔍 [JWT 필터] 요청 시작: {}", requestPath);
-
-        // permitAll() 경로는 필터를 건너뜀 (인증 불필요)
-        if (isPermitAllPath(requestPath)) {
-            log.info("✅ [JWT 필터] permitAll() 경로입니다. 필터를 건너뜁니다: {}", requestPath);
             filterChain.doFilter(request, response);
             return;
         }
@@ -105,6 +98,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // 다음 필터로 진행
         log.info("➡️ [JWT 필터] 다음 필터로 진행합니다.");
         filterChain.doFilter(request, response);
+    }
+
+    /**
+     * JWT 필터를 건너뛰어야 하는 경로인지 확인합니다.
+     * 
+     * @param requestURI 요청 URI
+     * @return 건너뛰어야 하면 true
+     */
+    private boolean shouldSkipFilter(String requestURI) {
+        // permitAll 경로 목록
+        return requestURI.startsWith("/api/v1/auth/") ||
+               requestURI.equals("/api/v1/users/signup") ||
+               requestURI.startsWith("/api/v1/feature1/");
     }
 
     /**
