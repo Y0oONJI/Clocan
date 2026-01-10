@@ -68,9 +68,9 @@ export function StyleCard({
       onToggle={onToggle}
       className="overflow-hidden relative group"
     >
-      <CardContent className="p-0 aspect-w-1 aspect-h-1 relative">
+      <CardContent className="p-0 relative aspect-square min-h-[200px]">
         {/* 배경 이미지 */}
-        {image && (
+        {image ? (
           <Image
             src={image.imageUrl}
             alt={image.description}
@@ -78,14 +78,16 @@ export function StyleCard({
             className="object-cover transition-transform duration-300 group-hover:scale-105"
             data-ai-hint={image.imageHint}
           />
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-br from-gray-200 to-gray-300" />
         )}
         
         {/* 어두운 오버레이 */}
         <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-colors" />
         
         {/* 스타일 이름 */}
-        <div className="absolute inset-0 flex items-center justify-center p-2 text-center">
-          <h3 className="font-headline text-lg font-bold text-white z-10">
+        <div className="absolute inset-0 flex items-center justify-center p-2 text-center z-10">
+          <h3 className="font-headline text-lg font-bold text-white drop-shadow-lg">
             {style.name}
           </h3>
         </div>

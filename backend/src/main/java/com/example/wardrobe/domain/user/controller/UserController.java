@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.*;
  * @since 1.0
  */
 @RestController
-@RequestMapping("/api/v1/users")
+@RequestMapping(value = "/api/v1/users", produces = "application/json;charset=UTF-8")
 @RequiredArgsConstructor
 public class UserController {
 

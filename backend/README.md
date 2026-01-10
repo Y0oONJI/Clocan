@@ -42,14 +42,53 @@ java -jar build/libs/wardrobe-backend-0.0.1-SNAPSHOT.jar
 
 ```
 src/main/java/com/example/wardrobe/
-├── domain/
-│   └── user/
-│       └── entity/
-│           ├── BaseTimeEntity.java
-│           ├── AuthProvider.java
-│           └── User.java
-└── WardrobeApplication.java
+├── WardrobeApplication.java          # 🚀 Spring Boot 메인 클래스 (루트 패키지 필수)
+│
+├── domain/                           # 📦 도메인별 비즈니스 로직
+│   ├── auth/                         # 인증 도메인
+│   │   ├── controller/
+│   │   ├── service/
+│   │   ├── dto/
+│   │   └── exception/
+│   ├── user/                         # 사용자 도메인
+│   │   ├── controller/
+│   │   ├── service/
+│   │   ├── repository/
+│   │   ├── entity/
+│   │   ├── dto/
+│   │   └── exception/
+│   └── recommend/                    # 추천 도메인
+│       ├── controller/
+│       ├── service/
+│       └── dto/
+│
+├── common/                            # 🔧 공통 기능
+│   └── exception/                    # 전역 예외 처리
+│       ├── ErrorResponse.java
+│       └── GlobalExceptionHandler.java
+│
+├── config/                            # ⚙️ 설정 클래스
+│   └── SecurityConfig.java           # Spring Security 설정
+│
+└── security/                         # 🔐 보안 관련
+    ├── JwtTokenProvider.java
+    ├── JwtAuthenticationFilter.java
+    ├── CustomUserDetailsService.java
+    ├── CustomAuthenticationEntryPoint.java
+    └── CustomAccessDeniedHandler.java
 ```
+
+### 구조 설명
+
+- **WardrobeApplication.java**: Spring Boot 메인 클래스는 반드시 루트 패키지(`com.example.wardrobe`)에 있어야 합니다. 이 클래스를 기준으로 하위 패키지가 자동 스캔됩니다.
+
+- **domain/**: 도메인별로 패키지를 분리합니다. 각 도메인은 `controller`, `service`, `repository`, `entity`, `dto`, `exception`을 포함할 수 있습니다.
+
+- **common/**: 여러 도메인에서 공통으로 사용하는 기능을 담습니다.
+
+- **config/**: Spring 설정 클래스들을 모아둡니다.
+
+- **security/**: 보안 관련 유틸리티와 필터를 담습니다.
 
 ## 주요 기능
 
