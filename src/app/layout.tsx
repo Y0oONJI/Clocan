@@ -1,10 +1,17 @@
 import type { Metadata } from "next";
+import { Noto_Sans_KR } from "next/font/google";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { Toaster } from "@/components/ui/toaster";
 import "./globals.css";
 
+const notoSansKR = Noto_Sans_KR({
+  subsets: ["latin"],
+  variable: "--font-noto-sans-kr",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
-  title: "Closet Canvas",
+  title: "Clocan",
   description: "Your digital wardrobe for endless style inspiration.",
 };
 
@@ -15,19 +22,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="light">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link
-          rel="preconnect"
-          href="https://fonts.gstatic.com"
-          crossOrigin="anonymous"
-        />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap"
-          rel="stylesheet"
-        />
-      </head>
-      <body className="font-body antialiased">
+      <body className={`${notoSansKR.variable} font-sans antialiased`}>
         <ErrorBoundary>
         {children}
         </ErrorBoundary>
