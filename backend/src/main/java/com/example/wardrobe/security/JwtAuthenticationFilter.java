@@ -42,13 +42,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             HttpServletRequest request,
             HttpServletResponse response,
             FilterChain filterChain) throws ServletException, IOException {
-
-        String requestURI = request.getRequestURI();
-        log.info("🔍 [JWT 필터] 요청 시작: {}", requestURI);
-
-        // permitAll 경로는 JWT 필터를 건너뜀
-        if (shouldSkipFilter(requestURI)) {
-            log.info("⏭️ [JWT 필터] permitAll 경로이므로 필터를 건너뜁니다: {}", requestURI);
             filterChain.doFilter(request, response);
             return;
         }
@@ -136,6 +129,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
         log.debug("🔑 [JWT 필터] Authorization 헤더가 없거나 Bearer 형식이 아닙니다.");
         return null;
+    }
+
+    /**
+     * permitAll() 경로인지 확인
+     * 
+     * @param path 요청 경로
+     * @return permitAll() 경로이면 true
+     */
+    private boolean isPermitAllPath(String path) {
+        return path.startsWith("/api/v1/auth/") 
+                || path.equals("/api/v1/users/signup")
+                || path.startsWith("/api/v1/recommend");
     }
 }
 

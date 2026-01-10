@@ -63,6 +63,8 @@ public class SecurityConfig {
      * SecurityFilterChain 설정
      * 
      * - /api/v1/auth/** 엔드포인트는 인증 없이 접근 가능 (회원가입, 로그인 등)
+     * - /api/v1/users/signup 회원가입은 인증 없이 접근 가능
+     * - /api/v1/recommend/** 추천 API는 임시로 인증 없이 접근 가능 (테스트용)
      * - 그 외 모든 API는 인증 필요
      * - JWT 인증 필터를 UsernamePasswordAuthenticationFilter 앞에 추가
      * - CSRF는 비활성화 (REST API이므로)
@@ -76,16 +78,16 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> auth
+                        // 인증 불필요한 엔드포인트 (순서 중요: 구체적인 경로를 먼저)
                         .requestMatchers("/api/v1/auth/**").permitAll()
                         .requestMatchers("/api/v1/users/signup").permitAll()
-                        .requestMatchers("/api/v1/feature1/**").permitAll()
                         // TODO: 관리자 권한이 필요한 엔드포인트 예시
                         // .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
+                        // 그 외 모든 요청은 인증 필요
                         .anyRequest().authenticated()
                 )
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint(authenticationEntryPoint)
                         .accessDeniedHandler(accessDeniedHandler)

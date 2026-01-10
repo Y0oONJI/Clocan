@@ -46,33 +46,46 @@ export function InspirationSelectionStep({
         const image = PlaceHolderImages.find((img) => img.id === id);
         const isSelected = selectedItems.includes(id);
 
+        if (!image) {
+          console.warn(`Image not found for id: ${id}`);
+        }
+
         return (
           <div
             key={id}
             onClick={() => onToggle(id)}
             className={cn(
               "relative cursor-pointer group rounded-lg overflow-hidden",
+              "aspect-[3/4] min-h-[250px] w-full",
               isSelected && "ring-2 ring-primary ring-offset-2"
             )}
           >
             {/* 이미지 */}
-            <div className="aspect-w-3 aspect-h-4 relative">
-              {image && (
-                <Image
-                  src={image.imageUrl}
-                  alt={image.description}
-                  fill
-                  className="object-cover transition-transform duration-300 group-hover:scale-105"
-                  data-ai-hint={image.imageHint}
-                />
-              )}
-            </div>
+            {image ? (
+              <Image
+                src={image.imageUrl}
+                alt={image.description}
+                fill
+                sizes="(max-width: 640px) 50vw, 33vw"
+                className="object-cover transition-transform duration-300 group-hover:scale-105"
+                data-ai-hint={image.imageHint}
+                unoptimized
+                priority={false}
+              />
+            ) : (
+              <div className="absolute inset-0 bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
+                <span className="text-gray-400 text-sm">No image</span>
+              </div>
+            )}
+
+            {/* 기본 오버레이 */}
+            <div className="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-colors pointer-events-none" />
 
             {/* 선택 오버레이 */}
             {isSelected && (
               <>
-                <div className="absolute inset-0 bg-primary/40" />
-                <div className="absolute top-2 right-2 bg-primary text-primary-foreground rounded-full p-1.5 z-10">
+                <div className="absolute inset-0 bg-primary/40 pointer-events-none" />
+                <div className="absolute top-2 right-2 bg-primary text-primary-foreground rounded-full p-1.5">
                   <Check className="w-5 h-5" />
                 </div>
               </>
