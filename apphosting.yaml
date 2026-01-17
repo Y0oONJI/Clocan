@@ -1,7 +1,16 @@
 # Settings to manage and configure a Firebase App Hosting backend.
 # https://firebase.google.com/docs/app-hosting/configure
 
+# backend 디렉토리에서 빌드하도록 명시적으로 설정
+buildConfig:
+  path: "backend"
+  # 명시적인 빌드 명령 (assemble 대신 bootJar 사용)
+  command: "./gradlew clean bootJar --no-daemon"
+
 runConfig:
   # Increase this value if you'd like to automatically spin up
   # more instances in response to increased traffic.
   maxInstances: 1
+  
+  # Port on which the application runs
+  port: 8080

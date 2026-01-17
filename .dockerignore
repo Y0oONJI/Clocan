@@ -1,0 +1,46 @@
+# Node modules
+node_modules
+npm-debug.log
+yarn-error.log
+
+# Next.js build outputs
+.next
+out
+dist
+build
+
+# Backend build outputs (will be built in Docker)
+backend/build
+backend/.gradle
+backend/gradlew.bat
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+*~
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Git
+.git
+.gitignore
+
+# Documentation
+docs
+*.md
+!README.md
+
+# Test files
+**/__tests__
+**/*.test.*
+**/*.spec.*
+
+# Misc
+.DS_Store
+*.log
+
