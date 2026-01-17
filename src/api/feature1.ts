@@ -50,9 +50,11 @@ export class Feature1ApiError extends Error {
  * @description
  * Next.js 환경 변수에서 API Base URL을 가져옵니다.
  * 클라이언트 사이드에서 접근 가능하도록 NEXT_PUBLIC_ 접두사가 필요합니다.
+ * 환경 변수가 없으면 Cloud Type 배포 URL을 기본값으로 사용합니다.
  */
 const API_BASE =
-  process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8080";
+  process.env.NEXT_PUBLIC_API_BASE_URL ||
+  "https://port-0-clocan-mkhvtt3s93200f2b.sel3.cloudtype.app";
 
 /**
  * Feature1 Ping API 호출
