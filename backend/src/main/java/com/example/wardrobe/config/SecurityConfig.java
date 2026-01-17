@@ -91,14 +91,20 @@ public class SecurityConfig {
                         .requestMatchers("/", "/health", "/healthz").permitAll() // Cloud Type 기본 헬스체크 경로
                         .requestMatchers("/actuator/health", "/actuator/info", "/actuator/**").permitAll() // Spring Boot Actuator 헬스체크
                         
-                        // 3. 공개 API (임시로 인증 불필요)
+                        // 3. Swagger UI 및 API 문서 (개발 환경)
+                        .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/swagger-ui/index.html").permitAll()
+                        .requestMatchers("/v3/api-docs/**", "/v3/api-docs.yaml", "/v3/api-docs.yml").permitAll()
+                        .requestMatchers("/swagger-resources/**", "/swagger-resources").permitAll()
+                        .requestMatchers("/webjars/**").permitAll()
+                        
+                        // 4. 공개 API (임시로 인증 불필요)
                         .requestMatchers("/api/v1/feature1/**").permitAll()
                         .requestMatchers("/api/v1/recommend/**").permitAll()
                         
-                        // 4. Spring Boot 기본 경로 (에러 핸들러 등)
+                        // 5. Spring Boot 기본 경로 (에러 핸들러 등)
                         .requestMatchers("/error", "/error/**").permitAll()
                         
-                        // 5. 개발 환경 전용 (H2 콘솔 - 프로덕션에서는 비활성화 권장)
+                        // 6. 개발 환경 전용 (H2 콘솔 - 프로덕션에서는 비활성화 권장)
                         .requestMatchers("/h2-console/**").permitAll()
                         
                         // TODO: 관리자 권한이 필요한 엔드포인트

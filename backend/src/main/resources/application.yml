@@ -63,6 +63,14 @@ management:
     db:
       enabled: true  # 데이터베이스 헬스체크 활성화
 
+# SpringDoc OpenAPI (Swagger) 설정
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+
 # JWT 설정
 jwt:
   secret: ${JWT_SECRET:defaultSecretKeyForDevelopmentOnlyChangeInProduction}
