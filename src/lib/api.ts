@@ -2,10 +2,27 @@
  * API 설정
  * 
  * 백엔드 서버 주소와 기본 경로를 설정합니다.
+ * 
+ * 환경 변수가 없으면:
+ * - 로컬 개발 환경(localhost)에서는 http://localhost:8080 사용
+ * - 프로덕션 환경에서는 Cloud Type 배포 URL 사용
  */
-export const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ||
-  "https://port-0-clocan-mkhvtt3s93200f2b.sel3.cloudtype.app";
+function getApiBaseUrl(): string {
+  // 환경 변수가 설정되어 있으면 우선 사용
+  if (process.env.NEXT_PUBLIC_API_BASE_URL) {
+    return process.env.NEXT_PUBLIC_API_BASE_URL;
+  }
+  
+  // 브라우저 환경에서 로컬호스트인지 확인
+  if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+    return 'http://localhost:8080';
+  }
+  
+  // 프로덕션 환경 (Vercel 등)
+  return "https://port-0-clocan-mkhvtt3s93200f2b.sel3.cloudtype.app";
+}
+
+export const API_BASE_URL = getApiBaseUrl();
 
 export const API_BASE_PATH = "/api/v1";
 
