@@ -121,6 +121,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
      * 필터를 건너뛰어야 하는 공개 엔드포인트 목록
      */
     private boolean shouldSkipFilter(String requestURI) {
+
+
         // 0. Swagger UI 및 API 문서 (최우선 - 개발 환경)
         // 더 포괄적인 매칭을 위해 contains와 startsWith 모두 사용
         if (requestURI.startsWith("/swagger-ui") 
