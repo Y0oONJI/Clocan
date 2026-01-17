@@ -93,6 +93,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
+                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // CORS 설정 적용
                 .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable())) // H2 콘솔 사용을 위해
                 .authorizeHttpRequests(auth -> auth
                         // 공개 엔드포인트 (인증 불필요) - 순서 중요: 구체적인 경로를 먼저
