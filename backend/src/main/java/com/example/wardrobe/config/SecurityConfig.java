@@ -88,6 +88,7 @@ public class SecurityConfig {
                         
                         // 2. Health 체크 (배포 환경 모니터링용 - 클라우드타입 등에서 필요)
                         .requestMatchers("/api/v1/health", "/api/v1/health/**").permitAll()
+                        .requestMatchers("/", "/health", "/healthz", "/actuator/health").permitAll() // Cloud Type 기본 헬스체크 경로
                         
                         // 3. 공개 API (임시로 인증 불필요)
                         .requestMatchers("/api/v1/feature1/**").permitAll()

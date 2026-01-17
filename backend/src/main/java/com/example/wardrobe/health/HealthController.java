@@ -1,5 +1,6 @@
 package com.example.wardrobe.health;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,5 +26,22 @@ public class HealthController {
                 "version", "0.0.1",
                 "env", "local"
         );
+    }
+}
+
+@RestController
+class RootHealthController {
+    
+    /**
+     * Cloud Type 헬스체크용 루트 경로
+     * Cloud Type은 기본적으로 /health 또는 / 경로를 확인합니다.
+     */
+    @GetMapping({"/", "/health", "/healthz"})
+    public ResponseEntity<Map<String, Object>> rootHealth() {
+        return ResponseEntity.ok(Map.of(
+                "status", "UP",
+                "service", "wardrobe-backend",
+                "timestamp", OffsetDateTime.now().toString()
+        ));
     }
 }
