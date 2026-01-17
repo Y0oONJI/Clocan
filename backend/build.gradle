@@ -58,9 +58,7 @@ tasks.named("jar") {
 tasks.named("bootJar") {
     enabled = true
 }
-}
 
 tasks.named('test') {
     useJUnitPlatform()
 }
-
