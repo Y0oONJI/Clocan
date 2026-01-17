@@ -62,13 +62,14 @@ public class SecurityConfig {
     /**
      * SecurityFilterChain 설정
      * 
-     * - /api/v1/auth/** 엔드포인트는 인증 없이 접근 가능 (회원가입, 로그인 등)
-     * - /api/v1/users/signup 회원가입은 인증 없이 접근 가능
-     * - /api/v1/recommend/** 추천 API는 임시로 인증 없이 접근 가능 (테스트용)
-     * - 그 외 모든 API는 인증 필요
-     * - JWT 인증 필터를 UsernamePasswordAuthenticationFilter 앞에 추가
-     * - CSRF는 비활성화 (REST API이므로)
-     * - 인증/인가 실패 시 커스텀 핸들러 사용
+     * 공개 엔드포인트 (인증 불필요):
+     * - /api/v1/auth/** - 인증 관련 (로그인, 회원가입 등)
+     * - /api/v1/users/signup - 회원가입
+     * - /api/v1/health/** - Health 체크 (배포 환경 모니터링용)
+     * - /api/v1/feature1/** - Feature1 테스트 엔드포인트
+     * - /api/v1/recommend/** - 추천 API (임시로 인증 불필요)
+     * 
+     * 그 외 모든 엔드포인트는 인증 필요
      * 
      * @param http HttpSecurity
      * @return SecurityFilterChain
@@ -78,12 +79,29 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
+                .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable())) // H2 콘솔 사용을 위해
                 .authorizeHttpRequests(auth -> auth
-                        // 인증 불필요한 엔드포인트 (순서 중요: 구체적인 경로를 먼저)
+                        // 공개 엔드포인트 (인증 불필요) - 순서 중요: 구체적인 경로를 먼저
+                        // 1. 인증 관련 (로그인, 회원가입)
                         .requestMatchers("/api/v1/auth/**").permitAll()
                         .requestMatchers("/api/v1/users/signup").permitAll()
-                        // TODO: 관리자 권한이 필요한 엔드포인트 예시
+                        
+                        // 2. Health 체크 (배포 환경 모니터링용 - 클라우드타입 등에서 필요)
+                        .requestMatchers("/api/v1/health", "/api/v1/health/**").permitAll()
+                        
+                        // 3. 공개 API (임시로 인증 불필요)
+                        .requestMatchers("/api/v1/feature1/**").permitAll()
+                        .requestMatchers("/api/v1/recommend/**").permitAll()
+                        
+                        // 4. Spring Boot 기본 경로 (에러 핸들러 등)
+                        .requestMatchers("/error", "/error/**").permitAll()
+                        
+                        // 5. 개발 환경 전용 (H2 콘솔 - 프로덕션에서는 비활성화 권장)
+                        .requestMatchers("/h2-console/**").permitAll()
+                        
+                        // TODO: 관리자 권한이 필요한 엔드포인트
                         // .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
+                        
                         // 그 외 모든 요청은 인증 필요
                         .anyRequest().authenticated()
                 )
