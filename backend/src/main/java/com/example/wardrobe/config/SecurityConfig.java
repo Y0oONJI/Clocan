@@ -140,17 +140,25 @@ public class SecurityConfig {
      * CORS 설정
      * 
      * 프론트엔드에서 API를 호출할 수 있도록 CORS를 허용합니다.
-     * 개발 환경에서는 모든 origin을 허용하지만, 프로덕션에서는 특정 origin만 허용해야 합니다.
+     * 프로덕션 환경에서는 특정 origin만 허용합니다.
      * 
      * @return CorsConfigurationSource
      */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("*")); // 개발 환경: 모든 origin 허용
+        
+        // 허용할 프론트엔드 도메인 목록
+        configuration.setAllowedOrigins(List.of(
+                "http://localhost:9002",           // 로컬 개발 환경
+                "http://localhost:3000",           // Next.js 기본 포트
+                "https://hclocan.vercel.app",      // Vercel 배포 도메인
+                "https://www.hclocan.vercel.app"   // Vercel www 서브도메인 (필요시)
+        ));
+        
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
-        configuration.setAllowCredentials(false); // 모든 origin 허용 시 false
+        configuration.setAllowCredentials(true); // 특정 origin 허용 시 true로 변경 가능
         configuration.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
