@@ -14,28 +14,27 @@ spring:
       force: true
   
   datasource:
-    # SQLite 데이터베이스 설정
-    url: jdbc:sqlite:./data/wardrobe.db
-    driver-class-name: org.sqlite.JDBC
-    # SQLite는 username/password가 필요 없음
+    # H2 인메모리 데이터베이스 설정 (컨테이너 환경에 적합)
+    url: jdbc:h2:mem:wardrobe_db
+    username: sa
+    password: 
+    driver-class-name: org.h2.Driver
     
-    # H2 데이터베이스 설정 (대체 옵션)
-    # url: jdbc:h2:mem:wardrobe_db
-    # username: sa
-    # password: 
-    # driver-class-name: org.h2.Driver
+    # SQLite 데이터베이스 설정 (로컬 개발용 - 주석 처리)
+    # url: jdbc:sqlite:./data/wardrobe.db
+    # driver-class-name: org.sqlite.JDBC
   
   jpa:
     hibernate:
       ddl-auto: create-drop  # 개발 환경에서는 create-drop 사용 (재시작 시 스키마 재생성)
-    show-sql: true
+    show-sql: false  # 프로덕션에서는 false로 설정
     properties:
       hibernate:
-        format_sql: true
-        # SQLite Hibernate Dialect
-        dialect: org.hibernate.community.dialect.SQLiteDialect
-        # H2 Hibernate Dialect (H2 사용 시)
-        # dialect: org.hibernate.dialect.H2Dialect
+        format_sql: false
+        # H2 Hibernate Dialect
+        dialect: org.hibernate.dialect.H2Dialect
+        # SQLite Hibernate Dialect (SQLite 사용 시)
+        # dialect: org.hibernate.community.dialect.SQLiteDialect
   
   h2:
     console:
@@ -44,11 +43,25 @@ spring:
 
 logging:
   level:
-    com.example.wardrobe: DEBUG
-    com.example.wardrobe.security: DEBUG  # JWT 필터 로그 확인용
-    org.hibernate.SQL: DEBUG
-    org.springframework.security: DEBUG  # Spring Security 디버그 로그
-    org.springframework.web: DEBUG  # 웹 요청 디버그 로그
+    com.example.wardrobe: INFO  # 프로덕션에서는 INFO로 변경
+    com.example.wardrobe.security: INFO
+    org.hibernate.SQL: WARN
+    org.springframework.security: WARN
+    org.springframework.web: INFO
+    root: INFO  # 루트 로그 레벨
+
+# Spring Boot Actuator 설정
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info  # 헬스체크와 정보 엔드포인트만 노출
+  endpoint:
+    health:
+      show-details: when-authorized  # 헬스체크 상세 정보 설정
+  health:
+    db:
+      enabled: true  # 데이터베이스 헬스체크 활성화
 
 # JWT 설정
 jwt:
