@@ -133,8 +133,28 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (requestURI.equals("/api/v1/health") || requestURI.startsWith("/api/v1/health/")) {
             return true;
         }
+        if (requestURI.equals("/") || requestURI.equals("/health") || requestURI.equals("/healthz")) {
+            return true;
+        }
+        if (requestURI.startsWith("/actuator/")) {
+            return true;
+        }
         
-        // 3. 공개 API
+        // 3. Swagger UI 및 API 문서 (개발 환경)
+        if (requestURI.startsWith("/swagger-ui/") || requestURI.equals("/swagger-ui.html") || requestURI.equals("/swagger-ui/index.html")) {
+            return true;
+        }
+        if (requestURI.startsWith("/v3/api-docs") || requestURI.equals("/v3/api-docs.yaml") || requestURI.equals("/v3/api-docs.yml")) {
+            return true;
+        }
+        if (requestURI.startsWith("/swagger-resources")) {
+            return true;
+        }
+        if (requestURI.startsWith("/webjars/")) {
+            return true;
+        }
+        
+        // 4. 공개 API
         if (requestURI.startsWith("/api/v1/feature1/") || requestURI.startsWith("/api/v1/recommend/")) {
             return true;
         }
