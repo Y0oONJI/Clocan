@@ -32,7 +32,10 @@ spring:
 logging:
   level:
     com.example.wardrobe: DEBUG
+    com.example.wardrobe.security: DEBUG  # JWT 필터 로그 확인용
     org.hibernate.SQL: DEBUG
+    org.springframework.security: DEBUG  # Spring Security 디버그 로그
+    org.springframework.web: DEBUG  # 웹 요청 디버그 로그
 
 # JWT 설정
 jwt:
