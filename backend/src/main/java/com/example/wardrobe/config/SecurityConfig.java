@@ -82,20 +82,20 @@ public class SecurityConfig {
                 .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable())) // H2 콘솔 사용을 위해
                 .authorizeHttpRequests(auth -> auth
                         // 공개 엔드포인트 (인증 불필요) - 순서 중요: 구체적인 경로를 먼저
-                        // 1. 인증 관련 (로그인, 회원가입)
-                        .requestMatchers("/api/v1/auth/**").permitAll()
-                        .requestMatchers("/api/v1/users/signup").permitAll()
+                        // 0. Swagger UI 및 API 문서 (최우선 - 개발 환경)
+                        .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/swagger-ui/index.html", "/swagger-ui/**/**").permitAll()
+                        .requestMatchers("/v3/api-docs/**", "/v3/api-docs.yaml", "/v3/api-docs.yml").permitAll()
+                        .requestMatchers("/swagger-resources/**", "/swagger-resources", "/swagger-resources/**/**").permitAll()
+                        .requestMatchers("/webjars/**", "/webjars/**/**").permitAll()
                         
-                        // 2. Health 체크 (배포 환경 모니터링용 - 클라우드타입 등에서 필요)
+                        // 1. Health 체크 (배포 환경 모니터링용 - 클라우드타입 등에서 필요)
                         .requestMatchers("/api/v1/health", "/api/v1/health/**").permitAll()
                         .requestMatchers("/", "/health", "/healthz").permitAll() // Cloud Type 기본 헬스체크 경로
                         .requestMatchers("/actuator/health", "/actuator/info", "/actuator/**").permitAll() // Spring Boot Actuator 헬스체크
                         
-                        // 3. Swagger UI 및 API 문서 (개발 환경)
-                        .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/swagger-ui/index.html").permitAll()
-                        .requestMatchers("/v3/api-docs/**", "/v3/api-docs.yaml", "/v3/api-docs.yml").permitAll()
-                        .requestMatchers("/swagger-resources/**", "/swagger-resources").permitAll()
-                        .requestMatchers("/webjars/**").permitAll()
+                        // 2. 인증 관련 (로그인, 회원가입)
+                        .requestMatchers("/api/v1/auth/**").permitAll()
+                        .requestMatchers("/api/v1/users/signup").permitAll()
                         
                         // 4. 공개 API (임시로 인증 불필요)
                         .requestMatchers("/api/v1/feature1/**").permitAll()

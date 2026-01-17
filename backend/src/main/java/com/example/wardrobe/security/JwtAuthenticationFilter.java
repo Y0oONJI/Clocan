@@ -121,15 +121,32 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
      * 필터를 건너뛰어야 하는 공개 엔드포인트 목록
      */
     private boolean shouldSkipFilter(String requestURI) {
-        // 1. 인증 관련 경로
-        if (requestURI.startsWith("/api/v1/auth/")) {
+        // 0. Swagger UI 및 API 문서 (최우선 - 개발 환경)
+        // 더 포괄적인 매칭을 위해 contains와 startsWith 모두 사용
+        if (requestURI.startsWith("/swagger-ui") 
+                || requestURI.contains("/swagger-ui") 
+                || requestURI.equals("/swagger-ui.html")
+                || requestURI.equals("/swagger-ui/index.html")) {
+            log.info("⏭️ [JWT 필터] Swagger UI 경로 감지 및 제외: {}", requestURI);
             return true;
         }
-        if (requestURI.equals("/api/v1/users/signup")) {
+        if (requestURI.startsWith("/v3/api-docs") 
+                || requestURI.contains("/v3/api-docs") 
+                || requestURI.equals("/v3/api-docs.yaml") 
+                || requestURI.equals("/v3/api-docs.yml")) {
+            log.info("⏭️ [JWT 필터] API Docs 경로 감지 및 제외: {}", requestURI);
+            return true;
+        }
+        if (requestURI.startsWith("/swagger-resources") || requestURI.contains("/swagger-resources")) {
+            log.info("⏭️ [JWT 필터] Swagger Resources 경로 감지 및 제외: {}", requestURI);
+            return true;
+        }
+        if (requestURI.startsWith("/webjars") || requestURI.contains("/webjars")) {
+            log.info("⏭️ [JWT 필터] Webjars 경로 감지 및 제외: {}", requestURI);
             return true;
         }
         
-        // 2. Health 체크 (배포 환경 모니터링용)
+        // 1. Health 체크 (배포 환경 모니터링용)
         if (requestURI.equals("/api/v1/health") || requestURI.startsWith("/api/v1/health/")) {
             return true;
         }
@@ -140,17 +157,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return true;
         }
         
-        // 3. Swagger UI 및 API 문서 (개발 환경)
-        if (requestURI.startsWith("/swagger-ui/") || requestURI.equals("/swagger-ui.html") || requestURI.equals("/swagger-ui/index.html")) {
+        // 2. 인증 관련 경로
+        if (requestURI.startsWith("/api/v1/auth/")) {
             return true;
         }
-        if (requestURI.startsWith("/v3/api-docs") || requestURI.equals("/v3/api-docs.yaml") || requestURI.equals("/v3/api-docs.yml")) {
-            return true;
-        }
-        if (requestURI.startsWith("/swagger-resources")) {
-            return true;
-        }
-        if (requestURI.startsWith("/webjars/")) {
+        if (requestURI.equals("/api/v1/users/signup")) {
             return true;
         }
         
