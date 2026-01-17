@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,7 +18,7 @@ interface AnalysisError {
   type: ErrorType;
 }
 
-export default function StyleQuizResultPage() {
+function StyleQuizResultContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   
@@ -330,8 +330,17 @@ With ${selectedInspirations.length} inspiration${selectedInspirations.length > 1
   );
 }
 
-
-
-
+export default function StyleQuizResultPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex flex-col items-center justify-center min-h-screen p-4">
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent"></div>
+        <p className="text-muted-foreground mt-4">Loading results...</p>
+      </div>
+    }>
+      <StyleQuizResultContent />
+    </Suspense>
+  );
+}
 
 
