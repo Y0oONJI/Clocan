@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, Suspense } from "react";
+import { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,7 +18,7 @@ interface AnalysisError {
   type: ErrorType;
 }
 
-function StyleQuizResultContent() {
+export default function StyleQuizResultPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   
@@ -140,193 +140,12 @@ With ${selectedInspirations.length} inspiration${selectedInspirations.length > 1
   if (selectedStyles.length === 0 && selectedColors.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen p-4">
-        <Card className="max-w-md">
-          <CardContent className="p-6 text-center space-y-4">
-            <p className="text-muted-foreground">No quiz results found. Please take the quiz first.</p>
-            <Button onClick={() => router.push("/style-quiz")}>
-              Take the Quiz
-            </Button>
-          </CardContent>
-        </Card>
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent"></div>
+        <p className="text-muted-foreground mt-4">Loading results...</p>
       </div>
-    );
-  }
-
-  return (
-    <div className="flex flex-col min-h-screen bg-background">
-      <main className="flex-grow flex items-center justify-center p-4 sm:p-8">
-        <div className="w-full max-w-4xl space-y-8">
-          {/* Header */}
-          <div className="text-center space-y-4">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-2">
-              <Sparkles className="w-8 h-8 text-primary" />
-            </div>
-            <h1 className="text-4xl sm:text-5xl font-bold font-headline text-primary">
-              Your Style Profile
-            </h1>
-            <p className="text-lg text-muted-foreground">
-              Here's what we discovered about your unique style
-            </p>
-          </div>
-
-          {/* Selection Summary */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Style Preferences
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="flex flex-wrap gap-2">
-                {selectedStyles.map(id => {
-                  const style = QUIZ_STYLES.find(s => s.id === id);
-                  return style ? (
-                    <Badge key={id} variant="secondary">
-                      {style.name}
-                    </Badge>
-                  ) : null;
-                })}
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Color Palettes
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="flex flex-wrap gap-2">
-                {selectedColors.map(id => {
-                  const color = QUIZ_COLORS.find(c => c.id === id);
-                  return color ? (
-                    <Badge key={id} variant="secondary">
-                      {color.name}
-                    </Badge>
-                  ) : null;
-                })}
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Inspirations
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Badge variant="secondary">
-                  {selectedInspirations.length} {selectedInspirations.length === 1 ? 'item' : 'items'} selected
-                </Badge>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* AI Analysis Result */}
-          <Card className={error ? "border-2 border-destructive/50" : "border-2 border-primary/20"}>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                {error ? (
-                  <AlertCircle className="w-5 h-5 text-destructive" />
-                ) : (
-                  <Sparkles className="w-5 h-5 text-primary" />
-                )}
-                {error ? '분석 실패' : 'AI Style Analysis'}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {loading ? (
-                <div className="flex flex-col items-center justify-center py-12 space-y-4">
-                  <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent"></div>
-                  <p className="text-muted-foreground">
-                    Analyzing your style preferences...
-                    {retryCount > 0 && ` (재시도 ${retryCount}/3)`}
-                  </p>
-                </div>
-              ) : error ? (
-                <div className="flex flex-col items-center justify-center py-12 space-y-6">
-                  <AlertCircle className="w-16 h-16 text-destructive" />
-                  
-                  <div className="text-center space-y-2">
-                    <h3 className="text-lg font-semibold text-destructive">
-                      {error.type === 'network' && '네트워크 연결 오류'}
-                      {error.type === 'timeout' && '시간 초과'}
-                      {error.type === 'api' && '데이터 오류'}
-                      {error.type === 'unknown' && '알 수 없는 오류'}
-                    </h3>
-                    <p className="text-muted-foreground max-w-md">
-                      {error.message}
-                    </p>
-                  </div>
-
-                  {/* 에러 액션 버튼 */}
-                  <div className="flex gap-4">
-                    <Button
-                      variant="outline"
-                      onClick={() => router.push("/style-quiz")}
-                    >
-                      <RefreshCw className="w-4 h-4 mr-2" />
-                      퀴즈 다시 하기
-                    </Button>
-                    
-                    <Button
-                      onClick={() => {
-                        setError(null);
-                        setRetryCount(0);
-                        generateResult();
-                      }}
-                    >
-                      다시 시도
-                    </Button>
-                  </div>
-
-                  {retryCount >= 3 && (
-                    <p className="text-sm text-muted-foreground">
-                      💡 여러 번 시도했지만 실패했어요. 잠시 후 다시 시도해주세요.
-                    </p>
-                  )}
-                </div>
-              ) : result ? (
-                <div className="prose prose-sm max-w-none">
-                  <p className="text-foreground whitespace-pre-line leading-relaxed">
-                    {result}
-                  </p>
-                </div>
-              ) : (
-                <div className="text-center py-8">
-                  <p className="text-muted-foreground mb-4">
-                    분석 결과를 생성할 수 없습니다.
-                  </p>
-                  <Button onClick={() => generateResult()}>
-                    다시 시도
-                  </Button>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button
-              variant="outline"
-              size="lg"
-              onClick={() => router.push("/style-quiz")}
-              className="gap-2"
-            >
-              <RefreshCw className="w-4 h-4" />
-              Retake Quiz
-            </Button>
-            <Button
-              size="lg"
-              onClick={() => router.push("/")}
-              className="gap-2"
-            >
-              <Home className="w-4 h-4" />
-              Back to Home
-            </Button>
-          </div>
-        </div>
-      </main>
-    </div>
+    }>
+      <ResultClient />
+    </Suspense>
   );
 }
 
