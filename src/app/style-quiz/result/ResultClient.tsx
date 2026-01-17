@@ -18,7 +18,7 @@ interface AnalysisError {
   type: ErrorType;
 }
 
-export default function StyleQuizResultPage() {
+export default function ResultClient() {
   const searchParams = useSearchParams();
   const router = useRouter();
   
