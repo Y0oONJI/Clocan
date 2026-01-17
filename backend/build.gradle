@@ -49,6 +49,17 @@ dependencies {
     testRuntimeOnly 'com.h2database:h2' // H2 인메모리 DB (테스트용)
 }
 
+// plain jar(일반 jar) 만들지 않기
+tasks.named("jar") {
+    enabled = false
+}
+
+// bootJar는 만들기 (Spring Boot 실행용 jar)
+tasks.named("bootJar") {
+    enabled = true
+}
+}
+
 tasks.named('test') {
     useJUnitPlatform()
 }
