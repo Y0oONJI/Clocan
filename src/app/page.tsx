@@ -14,27 +14,8 @@ import {
 } from "@/components/ui/carousel";
 import { ArrowRight, ClipboardList, ScanLine, Sparkles } from "lucide-react";
 import { Header } from "@/components/Header";
-
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8080";
-
-async function pingFeature1() {
-  const url = `${API_BASE}/api/v1/feature1/ping`;
-
-  console.log("[FE] calling:", url);
-
-  try {
-    const res = await fetch(url);
-    const data = await res.json();
-
-    console.log("[FE] response:", data);
-    alert(data.message); // 일단은 화면으로 확인하기 제일 쉬움!
-    return data;
-  } catch (error) {
-    console.error("[FE] error:", error);
-    alert(`API 호출 실패: ${error instanceof Error ? error.message : "알 수 없는 오류"}`);
-    throw error;
-  }
-}
+import { pingFeature1 } from "@/api/feature1";
+import { API_BASE_URL } from "@/lib/api";
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
@@ -42,7 +23,11 @@ export default function Home() {
   const handlePingClick = async () => {
     setIsLoading(true);
     try {
-      await pingFeature1();
+      const data = await pingFeature1();
+      alert(data.message || "추천 완료");
+    } catch (error) {
+      console.error("[FE] error:", error);
+      alert(`API 호출 실패: ${error instanceof Error ? error.message : "알 수 없는 오류"}`);
     } finally {
       setIsLoading(false);
     }
@@ -328,7 +313,7 @@ export default function Home() {
             {isLoading ? "API 호출 중..." : "API 테스트 (Feature1 Ping)"}
           </Button>
           <p className="text-xs text-muted-foreground mt-2">
-            API Base: {API_BASE}
+            API Base: {API_BASE_URL}
           </p>
         </div>
       </section>
