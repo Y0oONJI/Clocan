@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -19,6 +19,12 @@ import { API_BASE_URL } from "@/lib/api";
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
+  const [apiBaseUrl, setApiBaseUrl] = useState<string>("");
+
+  // 클라이언트 사이드에서만 API_BASE_URL 설정 (하이드레이션 에러 방지)
+  useEffect(() => {
+    setApiBaseUrl(API_BASE_URL);
+  }, []);
 
   const handlePingClick = async () => {
     setIsLoading(true);
@@ -312,9 +318,11 @@ export default function Home() {
           >
             {isLoading ? "API 호출 중..." : "API 테스트 (Feature1 Ping)"}
           </Button>
-          <p className="text-xs text-muted-foreground mt-2">
-            API Base: {API_BASE_URL}
-          </p>
+          {apiBaseUrl && (
+            <p className="text-xs text-muted-foreground mt-2">
+              API Base: {apiBaseUrl}
+            </p>
+          )}
         </div>
       </section>
 
