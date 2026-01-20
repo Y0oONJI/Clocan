@@ -74,5 +74,12 @@ springdoc:
 # JWT 설정
 jwt:
   secret: ${JWT_SECRET:defaultSecretKeyForDevelopmentOnlyChangeInProduction}
+
+# API 로깅 설정
+api:
+  logging:
+    enabled: ${API_LOGGING_ENABLED:true}  # API 로깅 활성화 여부 (기본값: true)
+    log-request-body: ${API_LOGGING_REQUEST_BODY:true}  # 요청 본문 로깅 여부 (기본값: true)
+    log-response-body: ${API_LOGGING_RESPONSE_BODY:true}  # 응답 본문 로깅 여부 (기본값: true)
   expiration: 1800 # 30분 (초 단위)
 

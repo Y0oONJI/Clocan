@@ -1,4 +1,9 @@
 /**
+ * API 로거 임포트
+ */
+import { logApiRequest, logApiResponse, logApiError } from "./api-logger";
+
+/**
  * API 설정
  * 
  * 백엔드 서버 주소와 기본 경로를 설정합니다.
@@ -58,18 +63,82 @@ export function getApiUrl(endpoint: string): string {
  */
 export async function apiGet<T = unknown>(endpoint: string): Promise<T> {
   const url = getApiUrl(endpoint);
-  const res = await fetch(url, {
+  const requestId = crypto.randomUUID();
+  const startedAt = performance.now();
+  const timestamp = new Date().toISOString();
+  
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
+
+  // 요청 로깅
+  logApiRequest({
+    url,
     method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers,
+    timestamp,
+    requestId,
   });
 
-  if (!res.ok) {
-    throw new Error(`API 호출 실패: ${res.status} ${res.statusText}`);
-  }
+  try {
+    const res = await fetch(url, {
+      method: "GET",
+      headers,
+    });
 
-  return res.json();
+    const duration = Math.round(performance.now() - startedAt);
+    const responseHeaders: Record<string, string> = {};
+    res.headers.forEach((value, key) => {
+      responseHeaders[key] = value;
+    });
+
+    // 응답 본문 읽기 (에러 처리 전에 로깅하기 위해)
+    let responseBody: unknown;
+    const contentType = res.headers.get("content-type");
+    
+    try {
+      if (contentType && contentType.includes("application/json")) {
+        responseBody = await res.json();
+      } else {
+        responseBody = await res.text();
+      }
+    } catch (parseError) {
+      responseBody = "[Failed to parse response]";
+    }
+
+    // 응답 로깅
+    logApiResponse({
+      url,
+      method: "GET",
+      status: res.status,
+      statusText: res.statusText,
+      headers: responseHeaders,
+      body: responseBody,
+      timestamp: new Date().toISOString(),
+      requestId,
+      duration,
+    });
+
+    if (!res.ok) {
+      throw new Error(`API 호출 실패: ${res.status} ${res.statusText}`);
+    }
+
+    return responseBody as T;
+  } catch (error) {
+    const duration = Math.round(performance.now() - startedAt);
+    
+    // 에러 로깅
+    logApiError({
+      url,
+      method: "GET",
+      error,
+      timestamp: new Date().toISOString(),
+      requestId,
+      duration,
+    });
+
+    throw error;
+  }
 }
 
 /**
@@ -89,17 +158,84 @@ export async function apiPost<T = unknown>(
   data?: unknown
 ): Promise<T> {
   const url = getApiUrl(endpoint);
-  const res = await fetch(url, {
+  const requestId = crypto.randomUUID();
+  const startedAt = performance.now();
+  const timestamp = new Date().toISOString();
+  
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
+
+  const body = data ? JSON.stringify(data) : undefined;
+
+  // 요청 로깅
+  logApiRequest({
+    url,
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: data ? JSON.stringify(data) : undefined,
+    headers,
+    body: data,
+    timestamp,
+    requestId,
   });
 
-  if (!res.ok) {
-    throw new Error(`API 호출 실패: ${res.status} ${res.statusText}`);
-  }
+  try {
+    const res = await fetch(url, {
+      method: "POST",
+      headers,
+      body,
+    });
 
-  return res.json();
+    const duration = Math.round(performance.now() - startedAt);
+    const responseHeaders: Record<string, string> = {};
+    res.headers.forEach((value, key) => {
+      responseHeaders[key] = value;
+    });
+
+    // 응답 본문 읽기 (에러 처리 전에 로깅하기 위해)
+    let responseBody: unknown;
+    const contentType = res.headers.get("content-type");
+    
+    try {
+      if (contentType && contentType.includes("application/json")) {
+        responseBody = await res.json();
+      } else {
+        responseBody = await res.text();
+      }
+    } catch (parseError) {
+      responseBody = "[Failed to parse response]";
+    }
+
+    // 응답 로깅
+    logApiResponse({
+      url,
+      method: "POST",
+      status: res.status,
+      statusText: res.statusText,
+      headers: responseHeaders,
+      body: responseBody,
+      timestamp: new Date().toISOString(),
+      requestId,
+      duration,
+    });
+
+    if (!res.ok) {
+      throw new Error(`API 호출 실패: ${res.status} ${res.statusText}`);
+    }
+
+    return responseBody as T;
+  } catch (error) {
+    const duration = Math.round(performance.now() - startedAt);
+    
+    // 에러 로깅
+    logApiError({
+      url,
+      method: "POST",
+      error,
+      timestamp: new Date().toISOString(),
+      requestId,
+      duration,
+    });
+
+    throw error;
+  }
 }

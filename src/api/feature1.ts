@@ -7,6 +7,7 @@
  */
 
 import { logger } from "@/lib/logger";
+import { logApiRequest, logApiResponse, logApiError } from "@/lib/api-logger";
 
 // Next.js 환경 변수 타입 확장
 declare const process: {
@@ -94,20 +95,37 @@ export async function pingFeature1(): Promise<PingResponse> {
   const requestId = crypto.randomUUID();
   const startedAt = performance.now();
   const url = `${API_BASE}/api/v1/feature1/ping`;
+  const timestamp = new Date().toISOString();
 
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  };
+
+  // 기존 로거 (Feature1 전용)
   logger.info(scope, "REQUEST_START", { requestId, url });
+
+  // API 로거 (공통)
+  logApiRequest({
+    url,
+    method: 'GET',
+    headers,
+    timestamp,
+    requestId,
+  });
 
   try {
     const res = await fetch(url, {
       method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers,
       // Next.js에서 fetch 캐싱 제어 (필요시)
       // cache: 'no-store',
     });
 
-    const tookMs = Math.round(performance.now() - startedAt);
+    const duration = Math.round(performance.now() - startedAt);
+    const responseHeaders: Record<string, string> = {};
+    res.headers.forEach((value, key) => {
+      responseHeaders[key] = value;
+    });
 
     // HTTP 에러 상태 체크
     if (!res.ok) {
@@ -118,12 +136,26 @@ export async function pingFeature1(): Promise<PingResponse> {
         errorData = await res.text();
       }
 
+      // 기존 로거 (Feature1 전용)
       logger.error(scope, "REQUEST_FAIL", { 
         requestId, 
         status: res.status, 
         statusText: res.statusText,
-        tookMs,
+        tookMs: duration,
         errorData 
+      });
+
+      // API 로거 (공통)
+      logApiResponse({
+        url,
+        method: 'GET',
+        status: res.status,
+        statusText: res.statusText,
+        headers: responseHeaders,
+        body: errorData,
+        timestamp: new Date().toISOString(),
+        requestId,
+        duration,
       });
 
       throw new Feature1ApiError(
@@ -135,31 +167,69 @@ export async function pingFeature1(): Promise<PingResponse> {
 
     const data = await res.json() as PingResponse;
 
-    logger.info(scope, "REQUEST_SUCCESS", { requestId, tookMs });
+    // 기존 로거 (Feature1 전용)
+    logger.info(scope, "REQUEST_SUCCESS", { requestId, tookMs: duration });
+
+    // API 로거 (공통)
+    logApiResponse({
+      url,
+      method: 'GET',
+      status: res.status,
+      statusText: res.statusText,
+      headers: responseHeaders,
+      body: data,
+      timestamp: new Date().toISOString(),
+      requestId,
+      duration,
+    });
 
     return data;
   } catch (error) {
-    const tookMs = Math.round(performance.now() - startedAt);
+    const duration = Math.round(performance.now() - startedAt);
 
     // 네트워크 에러 또는 기타 에러 처리
     if (error instanceof Feature1ApiError) {
+      // 기존 로거 (Feature1 전용)
       logger.error(scope, "REQUEST_ERROR", { 
         requestId, 
-        tookMs, 
+        tookMs: duration, 
         message: error.message,
         status: error.status,
         response: error.response
       });
+
+      // API 로거 (공통)
+      logApiError({
+        url,
+        method: 'GET',
+        error,
+        timestamp: new Date().toISOString(),
+        requestId,
+        duration,
+      });
+
       throw error;
     }
 
     // 네트워크 에러 등 기타 에러
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    
+    // 기존 로거 (Feature1 전용)
     logger.error(scope, "REQUEST_ERROR", { 
       requestId, 
-      tookMs, 
+      tookMs: duration, 
       message: errorMessage,
       error: error
+    });
+
+    // API 로거 (공통)
+    logApiError({
+      url,
+      method: 'GET',
+      error,
+      timestamp: new Date().toISOString(),
+      requestId,
+      duration,
     });
 
     throw new Feature1ApiError(
