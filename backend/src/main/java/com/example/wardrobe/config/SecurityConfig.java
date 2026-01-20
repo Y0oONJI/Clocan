@@ -116,7 +116,10 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/feature1/**").permitAll()
                         .requestMatchers("/api/v1/recommend/**").permitAll()
                         
-                        // 5. Spring Boot 기본 경로 (에러 핸들러 등)
+                        // 5. 어드민 분석 API (인증 불필요 - 공개 통계 데이터)
+                        .requestMatchers("/api/v1/admin/analytics/**").permitAll()
+                        
+                        // 6. Spring Boot 기본 경로 (에러 핸들러 등)
                         .requestMatchers("/error", "/error/**").permitAll()
                         
                         // 6. 개발 환경 전용 (H2 콘솔 - 프로덕션에서는 비활성화 권장)
