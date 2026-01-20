@@ -8,6 +8,7 @@
 
 import { logger } from "@/lib/logger";
 import { logApiRequest, logApiResponse, logApiError } from "@/lib/api-logger";
+import { ulid } from "ulid";
 
 // Next.js 환경 변수 타입 확장
 declare const process: {
@@ -92,13 +93,15 @@ const API_BASE = getApiBaseUrl();
  */
 export async function pingFeature1(): Promise<PingResponse> {
   const scope = "Feature1";
-  const requestId = crypto.randomUUID();
+  // ULID는 시간 정보를 포함하므로 정렬에 유리함
+  const requestId = ulid();
   const startedAt = performance.now();
   const url = `${API_BASE}/api/v1/feature1/ping`;
   const timestamp = new Date().toISOString();
 
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
+    'X-Request-ID': requestId, // 요청 추적을 위한 ULID 헤더 추가
   };
 
   // 기존 로거 (Feature1 전용)

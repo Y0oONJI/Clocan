@@ -2,6 +2,7 @@
  * API 로거 임포트
  */
 import { logApiRequest, logApiResponse, logApiError } from "./api-logger";
+import { ulid } from "ulid";
 
 /**
  * API 설정
@@ -63,12 +64,14 @@ export function getApiUrl(endpoint: string): string {
  */
 export async function apiGet<T = unknown>(endpoint: string): Promise<T> {
   const url = getApiUrl(endpoint);
-  const requestId = crypto.randomUUID();
+  // ULID는 시간 정보를 포함하므로 정렬에 유리함
+  const requestId = ulid();
   const startedAt = performance.now();
   const timestamp = new Date().toISOString();
   
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
+    "X-Request-ID": requestId, // 요청 추적을 위한 ULID 헤더 추가
   };
 
   // 요청 로깅
@@ -158,12 +161,14 @@ export async function apiPost<T = unknown>(
   data?: unknown
 ): Promise<T> {
   const url = getApiUrl(endpoint);
-  const requestId = crypto.randomUUID();
+  // ULID는 시간 정보를 포함하므로 정렬에 유리함
+  const requestId = ulid();
   const startedAt = performance.now();
   const timestamp = new Date().toISOString();
   
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
+    "X-Request-ID": requestId, // 요청 추적을 위한 ULID 헤더 추가
   };
 
   const body = data ? JSON.stringify(data) : undefined;

@@ -127,14 +127,15 @@ export function logApiRequest(log: ApiRequestLog): void {
 
   const { url, method, headers, body, timestamp, requestId } = log;
   
-  // 그룹 제목 생성
-  const groupTitle = `🌐 ${method} ${url}${requestId ? ` [${requestId.substring(0, 8)}]` : ''}`;
+  // 그룹 제목 생성 (requestId를 맨 앞에 표시)
+  const groupTitle = `${requestId ? `[${requestId}] ` : ''}🌐 ${method} ${url}`;
   
   // 그룹 시작
   console.group(groupTitle);
   
-  // 기본 정보
+  // 기본 정보 (requestId 포함)
   console.log('📤 Request', {
+    requestId,
     method,
     url,
     timestamp,
@@ -192,11 +193,12 @@ export function logApiResponse(log: ApiResponseLog): void {
   const statusEmoji = isError ? '❌' : '✅';
   const statusColor = isError ? 'color: #ef4444' : 'color: #10b981';
   
-  // 응답 정보 출력
+  // 응답 정보 출력 (requestId 포함)
   console.log(
-    `%c${statusEmoji} Response [${status} ${statusText}]${duration !== undefined ? ` ⏱️ ${duration}ms` : ''}`,
+    `%c${requestId ? `[${requestId}] ` : ''}${statusEmoji} Response [${status} ${statusText}]${duration !== undefined ? ` ⏱️ ${duration}ms` : ''}`,
     statusColor,
     {
+      requestId,
       status,
       statusText,
       timestamp,
@@ -247,11 +249,12 @@ export function logApiError(log: ApiErrorLog): void {
 
   const { url, method, error, timestamp, requestId, duration } = log;
   
-  // 에러 정보 출력
+  // 에러 정보 출력 (requestId 포함)
   console.error(
-    `%c❌ Error${duration !== undefined ? ` ⏱️ ${duration}ms` : ''}`,
+    `%c${requestId ? `[${requestId}] ` : ''}❌ Error${duration !== undefined ? ` ⏱️ ${duration}ms` : ''}`,
     'color: #ef4444; font-weight: bold',
     {
+      requestId,
       method,
       url,
       timestamp,
