@@ -14,16 +14,22 @@ import java.io.IOException;
 import java.util.UUID;
 
 /**
- * API 로깅 인터셉터
+ * API 로깅 필터 (LoggingFilter)
  * 
  * 모든 HTTP 요청과 응답을 가로채서 로깅하는 필터
+ * 
+ * 주요 기능:
+ * - HttpServletRequest의 Body를 ContentCachingRequestWrapper로 보존하여 로깅
+ * - HttpServletResponse의 Body를 ContentCachingResponseWrapper로 보존하여 로깅
+ * - 요청 ID를 생성하여 요청-응답 추적
+ * - 처리 시간(Duration) 측정 및 로깅
  * 
  * @author Closet Canvas Team
  * @since 1.0
  */
 @Component
 @RequiredArgsConstructor
-public class ApiLoggingInterceptor extends OncePerRequestFilter {
+public class LoggingFilter extends OncePerRequestFilter {
 
     private final ApiLogger apiLogger;
 
@@ -39,6 +45,8 @@ public class ApiLoggingInterceptor extends OncePerRequestFilter {
         long startTime = System.currentTimeMillis();
         
         // 요청/응답 본문을 읽기 위해 래퍼 사용
+        // HttpServletRequest의 Body는 한 번 읽으면 사라지므로,
+        // ContentCachingRequestWrapper를 사용하여 내용을 보존합니다.
         ContentCachingRequestWrapper requestWrapper = new ContentCachingRequestWrapper(request);
         ContentCachingResponseWrapper responseWrapper = new ContentCachingResponseWrapper(response);
         

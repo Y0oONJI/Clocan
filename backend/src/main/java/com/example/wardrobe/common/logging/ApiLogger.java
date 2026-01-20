@@ -3,7 +3,8 @@ package com.example.wardrobe.common.logging;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.ContentCachingRequestWrapper;
@@ -19,12 +20,19 @@ import java.util.*;
  * 
  * 백엔드에서 프론트엔드로부터 받은 요청과 응답을 로깅하는 유틸리티 클래스
  * 
+ * 별도 로거(LoggerFactory)를 사용하여 API 로그를 logs/api-requests.log 파일에 저장합니다.
+ * 
  * @author Closet Canvas Team
  * @since 1.0
  */
-@Slf4j
 @Component
 public class ApiLogger {
+
+    /**
+     * API 전용 로거
+     * logback-spring.xml에서 이 로거를 별도 파일(api-requests.log)에 저장하도록 설정됨
+     */
+    private static final Logger apiLogger = LoggerFactory.getLogger(ApiLogger.class);
 
     private static final DateTimeFormatter TIMESTAMP_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
     
@@ -99,9 +107,9 @@ public class ApiLogger {
                 }
             }
             
-            log.info("API Request: {}", formatLogData(logData));
+            apiLogger.info("API Request: {}", formatLogData(logData));
         } catch (Exception e) {
-            log.warn("Failed to log API request: {}", e.getMessage());
+            apiLogger.warn("Failed to log API request: {}", e.getMessage());
         }
     }
 
@@ -158,12 +166,12 @@ public class ApiLogger {
             
             // 에러 상태 코드인 경우 error 레벨로 로깅
             if (response.getStatus() >= 400) {
-                log.error("API Response Error: {}", formatLogData(logData));
+                apiLogger.error("API Response Error: {}", formatLogData(logData));
             } else {
-                log.info("API Response: {}", formatLogData(logData));
+                apiLogger.info("API Response: {}", formatLogData(logData));
             }
         } catch (Exception e) {
-            log.warn("Failed to log API response: {}", e.getMessage());
+            apiLogger.warn("Failed to log API response: {}", e.getMessage());
         }
     }
 
@@ -194,9 +202,9 @@ public class ApiLogger {
                 "stackTrace", getStackTrace(error)
             ));
             
-            log.error("API Error: {}", formatLogData(logData));
+            apiLogger.error("API Error: {}", formatLogData(logData));
         } catch (Exception e) {
-            log.warn("Failed to log API error: {}", e.getMessage());
+            apiLogger.warn("Failed to log API error: {}", e.getMessage());
         }
     }
 
