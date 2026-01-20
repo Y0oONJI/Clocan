@@ -25,36 +25,42 @@
     </appender>
 
     <!-- 일반 애플리케이션 로그 파일 Appender -->
+    <!-- RollingFileAppender를 사용하여 로그 파일 관리 -->
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- 현재 로그 파일 경로: ./logs/application.log -->
         <file>${LOG_PATH}/${LOG_FILE}.log</file>
         <encoder>
             <pattern>${FILE_LOG_PATTERN}</pattern>
             <charset>UTF-8</charset>
         </encoder>
+        <!-- TimeBasedRollingPolicy: 매일 자정에 파일 분리 -->
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${LOG_PATH}/${LOG_FILE}-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
-            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-                <maxFileSize>100MB</maxFileSize>
-            </timeBasedFileNamingAndTriggeringPolicy>
+            <!-- 파일명 패턴: application.2024-01-06.log 형식 -->
+            <fileNamePattern>${LOG_PATH}/${LOG_FILE}.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <!-- MaxHistory: 로그 보관 기간 30일 -->
             <maxHistory>30</maxHistory>
-            <totalSizeCap>3GB</totalSizeCap>
+            <!-- TotalSizeCap: 전체 로그 폴더 크기 1GB 제한 (초과 시 오래된 파일부터 삭제) -->
+            <totalSizeCap>1GB</totalSizeCap>
         </rollingPolicy>
     </appender>
 
     <!-- API 요청/응답 전용 로그 파일 Appender -->
+    <!-- RollingFileAppender를 사용하여 로그 파일 관리 -->
     <appender name="API_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- 현재 로그 파일 경로: ./logs/api-requests.log -->
         <file>${LOG_PATH}/api-requests.log</file>
         <encoder>
             <pattern>${FILE_LOG_PATTERN}</pattern>
             <charset>UTF-8</charset>
         </encoder>
+        <!-- TimeBasedRollingPolicy: 매일 자정에 파일 분리 -->
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${LOG_PATH}/api-requests-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
-            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-                <maxFileSize>100MB</maxFileSize>
-            </timeBasedFileNamingAndTriggeringPolicy>
+            <!-- 파일명 패턴: api-requests.2024-01-06.log 형식 -->
+            <fileNamePattern>${LOG_PATH}/api-requests.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <!-- MaxHistory: 로그 보관 기간 30일 -->
             <maxHistory>30</maxHistory>
-            <totalSizeCap>3GB</totalSizeCap>
+            <!-- TotalSizeCap: 전체 로그 폴더 크기 1GB 제한 (초과 시 오래된 파일부터 삭제) -->
+            <totalSizeCap>1GB</totalSizeCap>
         </rollingPolicy>
     </appender>
 
