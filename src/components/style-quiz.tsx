@@ -14,8 +14,8 @@
  * @since 2025-12-06 - 리팩토링 완료
  */
 
-import React from "react";
-import { useRouter } from "next/navigation";
+import React, { useEffect, useRef } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { useQuizState } from "@/hooks/useQuizState";
@@ -26,6 +26,8 @@ import { StyleSelectionStep } from "@/components/quiz/steps/StyleSelectionStep";
 import { ColorSelectionStep } from "@/components/quiz/steps/ColorSelectionStep";
 import { InspirationSelectionStep } from "@/components/quiz/steps/InspirationSelectionStep";
 import { CompletionStep } from "@/components/quiz/steps/CompletionStep";
+import { trackPageView, quizTracking } from "@/lib/analytics";
+import { QUIZ_STYLES, QUIZ_COLORS } from "@/data/quiz-data";
 import type { QuizStepConfig } from "@/types/quiz";
 
 /**
@@ -89,6 +91,8 @@ const QUIZ_STEPS: QuizStepConfig[] = [
  */
 export function StyleQuiz() {
   const router = useRouter();
+  const pathname = usePathname();
+  const startTimeRef = useRef<number>(Date.now());
   const {
     step,
     selections,
@@ -101,11 +105,37 @@ export function StyleQuiz() {
 
   const currentStepConfig = QUIZ_STEPS[step];
 
+  // 페이지뷰 추적
+  useEffect(() => {
+    trackPageView(pathname, '스타일 퀴즈');
+    startTimeRef.current = Date.now();
+  }, [pathname]);
+
+  // 퀴즈 이탈 추적 (페이지를 떠날 때)
+  useEffect(() => {
+    return () => {
+      // 컴포넌트가 언마운트될 때 (페이지를 떠날 때)
+      if (step > 0 && step < 4) {
+        const timeSpent = Math.floor((Date.now() - startTimeRef.current) / 1000);
+        quizTracking.trackAbandon(step, timeSpent);
+      }
+    };
+  }, [step]);
+
   /**
    * 다음 단계 또는 완료 처리
    */
   const handleNext = () => {
     if (isLastStep) {
+      // 퀴즈 완료 추적
+      const durationSeconds = Math.floor((Date.now() - startTimeRef.current) / 1000);
+      quizTracking.trackComplete({
+        styles: selections.styles,
+        colors: selections.colors,
+        inspirations: selections.inspirations,
+        durationSeconds,
+      });
+
       // 결과 페이지로 이동
       const params = new URLSearchParams({
         styles: selections.styles.join(","),
@@ -114,8 +144,73 @@ export function StyleQuiz() {
       });
       router.push(`/style-quiz/result?${params.toString()}`);
     } else {
+      // 퀴즈 시작 추적 (Step 0에서 시작 버튼 클릭)
+      if (step === 0) {
+        quizTracking.trackStart();
+      }
+
+      // 스텝 진행 추적
+      const selectedCount = step === 1 ? selections.styles.length :
+                           step === 2 ? selections.colors.length :
+                           step === 3 ? selections.inspirations.length : 0;
+      
+      quizTracking.trackStepNext(
+        step + 1,
+        currentStepConfig.id,
+        selectedCount
+      );
+
       nextStep();
     }
+  };
+
+  /**
+   * 이전 단계로 이동
+   */
+  const handlePrev = () => {
+    if (step > 0) {
+      quizTracking.trackStepBack(step, step - 1);
+      prevStep();
+    }
+  };
+
+  /**
+   * 선택 항목 토글 (추적 포함)
+   */
+  const handleToggle = (category: 'styles' | 'colors' | 'inspirations', id: string) => {
+    const isSelected = selections[category].includes(id);
+    const action = isSelected ? 'deselect' : 'select';
+    
+    // 선택 추적
+    if (category === 'styles') {
+      const style = QUIZ_STYLES.find(s => s.id === id);
+      if (style) {
+        quizTracking.trackStyleSelection(
+          id,
+          style.name,
+          action,
+          isSelected ? selections.styles.length - 1 : selections.styles.length + 1
+        );
+      }
+    } else if (category === 'colors') {
+      const color = QUIZ_COLORS.find(c => c.id === id);
+      if (color) {
+        quizTracking.trackColorSelection(
+          id,
+          color.name,
+          action,
+          isSelected ? selections.colors.length - 1 : selections.colors.length + 1
+        );
+      }
+    } else if (category === 'inspirations') {
+      quizTracking.trackInspirationSelection(
+        id,
+        action,
+        isSelected ? selections.inspirations.length - 1 : selections.inspirations.length + 1
+      );
+    }
+
+    toggleSelection(category, id);
   };
 
   /**
@@ -140,7 +235,7 @@ export function StyleQuiz() {
       return (
         <StepComponent
           selectedItems={selections[category]}
-          onToggle={(id: string) => toggleSelection(category, id)}
+          onToggle={(id: string) => handleToggle(category, id)}
         />
       );
     }
@@ -186,7 +281,7 @@ export function StyleQuiz() {
       <QuizFooter
         currentStep={step}
         totalSteps={QUIZ_STEPS.length}
-        onPrev={prevStep}
+        onPrev={handlePrev}
       />
     </div>
   );

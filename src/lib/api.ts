@@ -7,6 +7,9 @@
  * - 로컬 개발 환경(localhost)에서는 http://localhost:8080 사용
  * - 프로덕션 환경에서는 Cloud Type 배포 URL 사용
  */
+
+import { apiTracking } from './analytics';
+
 function getApiBaseUrl(): string {
   // 환경 변수가 설정되어 있으면 우선 사용
   if (process.env.NEXT_PUBLIC_API_BASE_URL) {
@@ -58,18 +61,43 @@ export function getApiUrl(endpoint: string): string {
  */
 export async function apiGet<T = unknown>(endpoint: string): Promise<T> {
   const url = getApiUrl(endpoint);
-  const res = await fetch(url, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+  const startedAt = performance.now();
 
-  if (!res.ok) {
-    throw new Error(`API 호출 실패: ${res.status} ${res.statusText}`);
+  // API 호출 시작 추적
+  apiTracking.trackStart(endpoint, 'GET');
+
+  try {
+    const res = await fetch(url, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    const duration = Math.round(performance.now() - startedAt);
+
+    if (!res.ok) {
+      // API 에러 추적
+      apiTracking.trackError(endpoint, 'GET', res.status, 'http', duration);
+      throw new Error(`API 호출 실패: ${res.status} ${res.statusText}`);
+    }
+
+    // API 성공 추적
+    apiTracking.trackSuccess(endpoint, 'GET', res.status, duration);
+
+    return res.json();
+  } catch (error) {
+    const duration = Math.round(performance.now() - startedAt);
+    
+    // 네트워크 에러 추적
+    if (error instanceof Error && error.message.includes('fetch')) {
+      apiTracking.trackError(endpoint, 'GET', undefined, 'network', duration);
+    } else {
+      apiTracking.trackError(endpoint, 'GET', undefined, 'unknown', duration);
+    }
+
+    throw error;
   }
-
-  return res.json();
 }
 
 /**
@@ -89,17 +117,42 @@ export async function apiPost<T = unknown>(
   data?: unknown
 ): Promise<T> {
   const url = getApiUrl(endpoint);
-  const res = await fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: data ? JSON.stringify(data) : undefined,
-  });
+  const startedAt = performance.now();
 
-  if (!res.ok) {
-    throw new Error(`API 호출 실패: ${res.status} ${res.statusText}`);
+  // API 호출 시작 추적
+  apiTracking.trackStart(endpoint, 'POST');
+
+  try {
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: data ? JSON.stringify(data) : undefined,
+    });
+
+    const duration = Math.round(performance.now() - startedAt);
+
+    if (!res.ok) {
+      // API 에러 추적
+      apiTracking.trackError(endpoint, 'POST', res.status, 'http', duration);
+      throw new Error(`API 호출 실패: ${res.status} ${res.statusText}`);
+    }
+
+    // API 성공 추적
+    apiTracking.trackSuccess(endpoint, 'POST', res.status, duration);
+
+    return res.json();
+  } catch (error) {
+    const duration = Math.round(performance.now() - startedAt);
+    
+    // 네트워크 에러 추적
+    if (error instanceof Error && error.message.includes('fetch')) {
+      apiTracking.trackError(endpoint, 'POST', undefined, 'network', duration);
+    } else {
+      apiTracking.trackError(endpoint, 'POST', undefined, 'unknown', duration);
+    }
+
+    throw error;
   }
-
-  return res.json();
 }

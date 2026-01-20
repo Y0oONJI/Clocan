@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -16,10 +17,17 @@ import { ArrowRight, ClipboardList, ScanLine, Sparkles } from "lucide-react";
 import { Header } from "@/components/Header";
 import { pingFeature1 } from "@/api/feature1";
 import { API_BASE_URL } from "@/lib/api";
+import { trackPageView, trackEvent, apiTracking } from "@/lib/analytics";
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [apiBaseUrl, setApiBaseUrl] = useState<string>("");
+  const pathname = usePathname();
+
+  // 페이지뷰 추적
+  useEffect(() => {
+    trackPageView(pathname, '랜딩 페이지');
+  }, [pathname]);
 
   // 클라이언트 사이드에서만 API_BASE_URL 설정 (하이드레이션 에러 방지)
   useEffect(() => {
@@ -27,13 +35,31 @@ export default function Home() {
   }, []);
 
   const handlePingClick = async () => {
+    // API 테스트 클릭 추적
+    trackEvent('api_test_click', {
+      button_text: 'API 테스트 (Feature1 Ping)',
+      location: 'landing_page',
+    });
+
     setIsLoading(true);
+    const startedAt = performance.now();
+
     try {
+      apiTracking.trackStart('/api/v1/feature1/ping', 'GET');
       const data = await pingFeature1();
+      const duration = Math.round(performance.now() - startedAt);
+      
+      apiTracking.trackSuccess('/api/v1/feature1/ping', 'GET', 200, duration);
+      
       alert(data.message || "추천 완료");
     } catch (error) {
+      const duration = Math.round(performance.now() - startedAt);
+      const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류';
+      
+      apiTracking.trackError('/api/v1/feature1/ping', 'GET', undefined, 'network', duration);
+      
       console.error("[FE] error:", error);
-      alert(`API 호출 실패: ${error instanceof Error ? error.message : "알 수 없는 오류"}`);
+      alert(`API 호출 실패: ${errorMessage}`);
     } finally {
       setIsLoading(false);
     }
@@ -65,6 +91,13 @@ export default function Home() {
               <Button
                 size="lg"
                 className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full px-10 py-6 text-base sm:text-lg font-bold shadow-lg hover:shadow-xl transition-all"
+                onClick={() => {
+                  // CTA 클릭 추적
+                  trackEvent('cta_click', {
+                    button_text: '취향 입력하고 바로 추천받기',
+                    location: 'hero',
+                  });
+                }}
               >
                 취향 입력하고 바로 추천받기
                 <ArrowRight className="ml-2 w-5 h-5" />

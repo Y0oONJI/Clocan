@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Sparkles, Home, RefreshCw, AlertCircle } from "lucide-react";
 import { QUIZ_STYLES, QUIZ_COLORS } from "@/data/quiz-data";
+import { trackPageView, trackEvent, trackException } from "@/lib/analytics";
 
 /**
  * 에러 타입 정의
@@ -21,6 +22,7 @@ interface AnalysisError {
 export default function ResultClient() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const pathname = usePathname();
   
   const [result, setResult] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -31,6 +33,18 @@ export default function ResultClient() {
   const selectedStyles = searchParams.get("styles")?.split(",") || [];
   const selectedColors = searchParams.get("colors")?.split(",") || [];
   const selectedInspirations = searchParams.get("inspirations")?.split(",") || [];
+
+  // 페이지뷰 추적
+  useEffect(() => {
+    trackPageView(pathname, '스타일 분석 결과');
+    
+    // 결과 페이지 로드 추적
+    trackEvent('result_view', {
+      styles: selectedStyles,
+      colors: selectedColors,
+      inspirations_count: selectedInspirations.length,
+    });
+  }, [pathname, selectedStyles, selectedColors, selectedInspirations]);
 
   /**
    * AI 분석 결과 생성
@@ -45,6 +59,7 @@ export default function ResultClient() {
     
     setLoading(true);
     setError(null);
+    const startedAt = performance.now();
 
     try {
       // AbortController로 타임아웃 구현
@@ -85,40 +100,60 @@ Your preference for ${colorNames} color palette${selectedColors.length > 1 ? 's'
 
 With ${selectedInspirations.length} inspiration${selectedInspirations.length > 1 ? 's' : ''} selected, you're ready to build a wardrobe that truly reflects your personality. Your style is versatile, allowing you to express yourself in various settings while maintaining your unique aesthetic.`;
 
+      const duration = Math.round(performance.now() - startedAt);
+      
+      // 결과 생성 성공 추적
+      trackEvent('result_generated', {
+        duration_ms: duration,
+        has_error: false,
+      });
+
       setResult(analysisResult);
       setRetryCount(0); // 성공 시 retry count 초기화
       
     } catch (err: any) {
       console.error('Style analysis error:', err);
+      const duration = Math.round(performance.now() - startedAt);
 
       // 에러 타입 판별
+      let errorType: ErrorType = 'unknown';
       if (err.name === 'AbortError' || err.message === 'Timeout') {
+        errorType = 'timeout';
         setError({
           message: '분석 시간이 초과되었습니다. 다시 시도해주세요.',
           type: 'timeout',
         });
       } else if (err instanceof TypeError && err.message.includes('fetch')) {
+        errorType = 'network';
         setError({
           message: '네트워크 연결을 확인해주세요.',
           type: 'network',
         });
       } else if (err.message === 'Invalid selection data') {
+        errorType = 'api';
         setError({
           message: '선택 데이터가 올바르지 않습니다. 퀴즈를 다시 시도해주세요.',
           type: 'api',
         });
       } else {
+        errorType = 'unknown';
         setError({
           message: '분석 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
           type: 'unknown',
         });
       }
 
+      // 결과 생성 실패 추적
+      trackEvent('result_error', {
+        error_type: errorType,
+        retry_count: retryCount,
+        duration_ms: duration,
+      });
+
+      // 예외 추적
+      trackException(err instanceof Error ? err : new Error(String(err)), false);
+
       // 자동 재시도 (최대 3회) - API 에러는 재시도하지 않음
-      const errorType = err.message === 'Invalid selection data' ? 'api' : 
-                       (err.name === 'AbortError' || err.message === 'Timeout') ? 'timeout' : 
-                       (err instanceof TypeError && err.message.includes('fetch')) ? 'network' : 'unknown';
-      
       if (retryCount < MAX_RETRIES && errorType !== 'api') {
         console.log(`Auto-retrying... (${retryCount + 1}/${MAX_RETRIES})`);
         setTimeout(() => {
@@ -266,7 +301,14 @@ With ${selectedInspirations.length} inspiration${selectedInspirations.length > 1
                   <div className="flex gap-4">
                     <Button
                       variant="outline"
-                      onClick={() => router.push("/style-quiz")}
+                      onClick={() => {
+                        // 퀴즈 재시작 추적
+                        trackEvent('quiz_restart', {
+                          from: 'result_page',
+                          reason: 'error',
+                        });
+                        router.push("/style-quiz");
+                      }}
                     >
                       <RefreshCw className="w-4 h-4 mr-2" />
                       퀴즈 다시 하기
@@ -274,6 +316,11 @@ With ${selectedInspirations.length} inspiration${selectedInspirations.length > 1
                     
                     <Button
                       onClick={() => {
+                        // 재시도 추적
+                        trackEvent('result_retry', {
+                          retry_count: retryCount + 1,
+                          error_type: error.type,
+                        });
                         setError(null);
                         setRetryCount(0);
                         generateResult();
@@ -313,7 +360,14 @@ With ${selectedInspirations.length} inspiration${selectedInspirations.length > 1
             <Button
               variant="outline"
               size="lg"
-              onClick={() => router.push("/style-quiz")}
+              onClick={() => {
+                // 퀴즈 재시작 추적
+                trackEvent('quiz_restart', {
+                  from: 'result_page',
+                  reason: 'user_action',
+                });
+                router.push("/style-quiz");
+              }}
               className="gap-2"
             >
               <RefreshCw className="w-4 h-4" />
@@ -321,7 +375,13 @@ With ${selectedInspirations.length} inspiration${selectedInspirations.length > 1
             </Button>
             <Button
               size="lg"
-              onClick={() => router.push("/")}
+              onClick={() => {
+                // 홈으로 이동 추적
+                trackEvent('navigate_home', {
+                  from: 'result_page',
+                });
+                router.push("/");
+              }}
               className="gap-2"
             >
               <Home className="w-4 h-4" />

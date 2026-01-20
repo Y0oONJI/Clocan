@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { pingFeature1, PingResponse } from "@/api/feature1";
 import { useToast } from "@/hooks/use-toast";
+import { trackEvent, apiTracking } from "@/lib/analytics";
 
 export function Header() {
   const navLinks = [
@@ -20,11 +21,22 @@ export function Header() {
   const { toast } = useToast();
 
   const handleRecommendClick = async () => {
+    // 헤더 CTA 클릭 추적
+    trackEvent('header_cta_click', {
+      button_text: '지금 추천받기',
+      location: 'header',
+    });
+
     setLoading(true);
     setErrorMsg(null);
+    const startedAt = performance.now();
 
     try {
+      apiTracking.trackStart('/api/v1/feature1/ping', 'GET');
       const data = await pingFeature1();
+      const duration = Math.round(performance.now() - startedAt);
+      
+      apiTracking.trackSuccess('/api/v1/feature1/ping', 'GET', 200, duration);
       setResult(data);
       
       // 성공 토스트 표시 - UX 친화적인 메시지
@@ -46,7 +58,11 @@ export function Header() {
         variant: "default",
       });
     } catch (e: any) {
+      const duration = Math.round(performance.now() - startedAt);
       const errorMessage = e?.message ?? "추천 요청 중 오류가 발생했습니다";
+      
+      apiTracking.trackError('/api/v1/feature1/ping', 'GET', undefined, 'network', duration);
+      
       setErrorMsg(errorMessage);
       setResult(null);
       
