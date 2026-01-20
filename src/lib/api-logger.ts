@@ -7,11 +7,13 @@
  * - 요청 로거: API 호출 전 요청 정보를 로깅
  * - 응답 로거: API 호출 후 응답 정보를 로깅
  * - 환경 변수로 온오프 제어 가능
+ * - console.group을 사용하여 보기 좋게 그룹화
  * 
  * @module lib/api-logger
  */
 
-import { logger } from "@/lib/logger";
+// 그룹 상태 관리 (requestId -> 그룹 시작 여부)
+const activeGroups = new Map<string, boolean>();
 
 /**
  * API 로깅 활성화 여부
@@ -125,31 +127,39 @@ export function logApiRequest(log: ApiRequestLog): void {
 
   const { url, method, headers, body, timestamp, requestId } = log;
   
-  const logData: Record<string, unknown> = {
-    type: 'API_REQUEST',
+  // 그룹 제목 생성
+  const groupTitle = `🌐 ${method} ${url}${requestId ? ` [${requestId.substring(0, 8)}]` : ''}`;
+  
+  // 그룹 시작
+  console.group(groupTitle);
+  
+  // 기본 정보
+  console.log('📤 Request', {
     method,
     url,
     timestamp,
-  };
+  });
 
-  if (requestId) {
-    logData.requestId = requestId;
-  }
-
+  // 헤더 정보
   if (headers && Object.keys(headers).length > 0) {
     // 민감한 정보 제거 (예: Authorization 헤더)
     const safeHeaders: Record<string, string> = { ...headers };
     if (safeHeaders.Authorization) {
       safeHeaders.Authorization = '[REDACTED]';
     }
-    logData.headers = safeHeaders;
+    console.log('📋 Headers', safeHeaders);
   }
 
+  // 요청 본문
   if (body !== undefined) {
-    logData.body = serializeBody(body);
+    const serializedBody = serializeBody(body);
+    console.log('📦 Request Body', serializedBody);
   }
 
-  logger.info('API', 'REQUEST', logData);
+  // 그룹 상태 저장 (응답에서 닫기 위해)
+  if (requestId) {
+    activeGroups.set(requestId, true);
+  }
 }
 
 /**
@@ -177,36 +187,40 @@ export function logApiResponse(log: ApiResponseLog): void {
 
   const { url, method, status, statusText, headers, body, timestamp, requestId, duration } = log;
   
-  const logData: Record<string, unknown> = {
-    type: 'API_RESPONSE',
-    method,
-    url,
-    status,
-    statusText,
-    timestamp,
-  };
+  // 상태에 따른 이모지 및 색상
+  const isError = status >= 400;
+  const statusEmoji = isError ? '❌' : '✅';
+  const statusColor = isError ? 'color: #ef4444' : 'color: #10b981';
+  
+  // 응답 정보 출력
+  console.log(
+    `%c${statusEmoji} Response [${status} ${statusText}]${duration !== undefined ? ` ⏱️ ${duration}ms` : ''}`,
+    statusColor,
+    {
+      status,
+      statusText,
+      timestamp,
+      duration: duration !== undefined ? `${duration}ms` : undefined,
+    }
+  );
 
-  if (requestId) {
-    logData.requestId = requestId;
-  }
-
-  if (duration !== undefined) {
-    logData.duration = `${duration}ms`;
-  }
-
+  // 응답 헤더
   if (headers && Object.keys(headers).length > 0) {
-    logData.headers = headers;
+    console.log('📋 Response Headers', headers);
   }
 
+  // 응답 본문
   if (body !== undefined) {
-    logData.body = body;
+    console.log('📦 Response Body', body);
   }
 
-  // 에러 상태 코드인 경우 error 레벨로 로깅
-  if (status >= 400) {
-    logger.error('API', 'RESPONSE_ERROR', logData);
+  // 그룹 종료
+  if (requestId && activeGroups.has(requestId)) {
+    console.groupEnd();
+    activeGroups.delete(requestId);
   } else {
-    logger.info('API', 'RESPONSE', logData);
+    // requestId가 없거나 그룹이 시작되지 않은 경우에도 그룹 종료 시도
+    console.groupEnd();
   }
 }
 
@@ -233,25 +247,35 @@ export function logApiError(log: ApiErrorLog): void {
 
   const { url, method, error, timestamp, requestId, duration } = log;
   
-  const logData: Record<string, unknown> = {
-    type: 'API_ERROR',
-    method,
-    url,
-    timestamp,
-    error: error instanceof Error ? {
+  // 에러 정보 출력
+  console.error(
+    `%c❌ Error${duration !== undefined ? ` ⏱️ ${duration}ms` : ''}`,
+    'color: #ef4444; font-weight: bold',
+    {
+      method,
+      url,
+      timestamp,
+      duration: duration !== undefined ? `${duration}ms` : undefined,
+    }
+  );
+
+  // 에러 상세 정보
+  if (error instanceof Error) {
+    console.error('💥 Error Details', {
       name: error.name,
       message: error.message,
       stack: error.stack,
-    } : error,
-  };
-
-  if (requestId) {
-    logData.requestId = requestId;
+    });
+  } else {
+    console.error('💥 Error Details', error);
   }
 
-  if (duration !== undefined) {
-    logData.duration = `${duration}ms`;
+  // 그룹 종료
+  if (requestId && activeGroups.has(requestId)) {
+    console.groupEnd();
+    activeGroups.delete(requestId);
+  } else {
+    // requestId가 없거나 그룹이 시작되지 않은 경우에도 그룹 종료 시도
+    console.groupEnd();
   }
-
-  logger.error('API', 'ERROR', logData);
 }
