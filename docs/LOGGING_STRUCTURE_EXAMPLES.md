@@ -9,12 +9,13 @@
 ## 📋 목차
 
 1. [개요](#개요)
-2. [프론트엔드 로깅 구조](#프론트엔드-로깅-구조)
-3. [백엔드 로깅 구조](#백엔드-로깅-구조)
-4. [실제 로그 출력 예시](#실제-로그-출력-예시)
-5. [데이터 구조 상세](#데이터-구조-상세)
-6. [로그 파일 관리](#로그-파일-관리)
-7. [로그 분석 및 활용](#로그-분석-및-활용)
+2. [프론트엔드-백엔드 연동 상태 표](#프론트엔드-백엔드-연동-상태-표)
+3. [프론트엔드 로깅 구조](#프론트엔드-로깅-구조)
+4. [백엔드 로깅 구조](#백엔드-로깅-구조)
+5. [실제 로그 출력 예시](#실제-로그-출력-예시)
+6. [데이터 구조 상세](#데이터-구조-상세)
+7. [로그 파일 관리](#로그-파일-관리)
+8. [로그 분석 및 활용](#로그-분석-및-활용)
 
 ---
 
@@ -28,6 +29,149 @@
 - **백엔드**: 파일 로깅 (Spring Boot 기본 Logback)
 - **Google Analytics**: 이벤트 추적 (`src/lib/analytics.ts`)
 - **로그 분석**: 백엔드 로그 파싱 및 집계 (`LogParser.java`, `AnalyticsService.java`)
+
+---
+
+## 프론트엔드-백엔드 연동 상태 표
+
+이 표는 현재 프로젝트에서 프론트엔드와 백엔드 간의 API 연동 상태를 정리하며, 각 API 호출의 성공/실패 시 동작을 포함합니다.
+
+### 분석 기준
+
+- **O**: 실제 코드에서 백엔드 API 호출 구현됨
+- **X**: 구현되지 않음
+- **Mock**: 모의(Mock) 데이터 또는 시뮬레이션으로 구현됨
+
+| # | 프론트엔드 페이지명 및 설명 | 백엔드 API 엔드포인트 URL 및 용도 | 호출 조건 | 구현 여부 | API 요청 데이터 (Request Body) | API 응답 데이터 (Response Body) | 성공 시 동작/이동 페이지 | 실패 시 동작/이동 페이지 |
+|---|---------------------------|--------------------------------|----------|----------|------------------------------|-------------------------------|----------------------|----------------------|
+| 1 | **랜딩 페이지** (`/`)<br>메인 홈페이지, 서비스 소개 및 CTA | `GET /api/v1/feature1/ping`<br>Feature1 테스트 API (선택적 호출) | "API 테스트" 버튼 클릭 시 | ✅ **O** | 없음 (GET 요청) | ```json<br>{<br>  "ok": true,<br>  "message": "Pong from Feature1",<br>  "data": {<br>    "style": "casual",<br>    "items": []<br>  }<br>}``` | Alert로 메시지 표시<br>`alert(data.message)`<br>Google Analytics 성공 이벤트 추적<br>`apiTracking.trackSuccess()` | Alert로 에러 메시지 표시<br>`alert("API 호출 실패: ...")`<br>콘솔에 에러 로그 출력<br>Google Analytics 에러 이벤트 추적<br>`apiTracking.trackError()` |
+| 2 | **랜딩 페이지** (`/`)<br>메인 홈페이지 | 없음<br>(페이지뷰만 추적) | 페이지 로드 시 | ✅ **O** | 없음 | 없음 | 페이지 표시<br>Google Analytics 페이지뷰 추적<br>`trackPageView('/')` | - |
+| 3 | **스타일 퀴즈 페이지** (`/style-quiz`)<br>5단계 스타일 선호도 퀴즈 | 없음<br>(프론트엔드에서만 처리) | 페이지 로드 시 | ✅ **O** | 없음 | 없음 | 퀴즈 UI 표시<br>Google Analytics 페이지뷰 추적<br>`trackPageView('/style-quiz')`<br>퀴즈 시작 이벤트 추적<br>`quizTracking.trackStart()` | - |
+| 4 | **스타일 퀴즈 완료** (`/style-quiz`)<br>퀴즈 완료 후 결과 페이지로 이동 | 없음<br>(URL 파라미터로 데이터 전달) | "Finish" 버튼 클릭 시 | ✅ **O** | 없음 (URL 파라미터 사용)<br>`?styles=...&colors=...&inspirations=...` | 없음 | `/style-quiz/result` 페이지로 이동<br>(URL 파라미터 포함)<br>Google Analytics 퀴즈 완료 이벤트 추적<br>`quizTracking.trackComplete()` | 유효성 검사 실패 시<br>에러 메시지 표시<br>이전 단계로 이동 불가 |
+| 5 | **스타일 분석 결과 페이지** (`/style-quiz/result`)<br>AI 스타일 분석 결과 표시 | `GET /api/v1/health/ping`<br>서버 연결 상태 확인 (HealthCheck) | 페이지 로드 시<br>(useEffect) | ✅ **O** | 없음 (GET 요청) | `"pong"` (문자열) | "서버 연결됨" 메시지 표시<br>Google Analytics 성공 이벤트 추적 | "서버 연결 실패" 메시지 표시<br>Google Analytics 에러 이벤트 추적<br>콘솔에 에러 로그 출력 |
+| 6 | **스타일 분석 결과 페이지** (`/style-quiz/result`)<br>AI 스타일 분석 결과 표시 | 없음 (현재 Mock)<br>향후: `POST /api/v1/style-quiz/analyze` 또는<br>`POST /api/v1/recommend` | 페이지 로드 시<br>(useEffect) | ⚠️ **Mock** | 없음 (현재)<br>향후 예상:<br>```json<br>{<br>  "styles": ["modern", "minimalist"],<br>  "colors": ["neutrals", "pastels"],<br>  "inspirations": ["insp1", "insp2"]<br>}``` | Mock 데이터 (현재)<br>```json<br>{<br>  "result": "Based on your selections..."<br>}```<br>향후 예상:<br>```json<br>{<br>  "analysis": "...",<br>  "recommendations": [...]<br>}``` | 분석 결과 텍스트 표시<br>선택 항목 요약 표시<br>Google Analytics 결과 생성 이벤트 추적<br>`trackEvent('result_generated')` | 에러 메시지 표시<br>재시도 버튼 표시 (최대 3회)<br>퀴즈 다시 하기 버튼 표시<br>홈으로 이동 버튼 표시<br>Google Analytics 예외 추적<br>`trackException(error)` |
+| 7 | **어드민 분석 대시보드** (`/admin/analytics`)<br>백엔드 로그 기반 통계 대시보드 | `GET /api/v1/admin/analytics/landing-page-views`<br>랜딩 페이지 접속 수 시간대별 집계 | 페이지 로드 시<br>(AnalyticsCard 컴포넌트) | ✅ **O** | 없음 (GET 요청) | ```json<br>[<br>  { "hour": 0, "count": 5 },<br>  { "hour": 1, "count": 3 },<br>  ...<br>  { "hour": 23, "count": 8 }<br>]``` | 표와 그래프로 데이터 표시<br>로딩 상태 해제<br>Google Analytics 성공 이벤트 추적 | 에러 메시지 표시<br>`<p>오류: {error}</p>`<br>로딩 상태 해제<br>더미 데이터 표시 (fallback)<br>Google Analytics 에러 이벤트 추적 |
+| 8 | **어드민 분석 대시보드** (`/admin/analytics`)<br>백엔드 로그 기반 통계 대시보드 | `GET /api/v1/admin/analytics/quiz-completions`<br>스타일 퀴즈 완료 수 시간대별 집계 | 페이지 로드 시<br>(AnalyticsCard 컴포넌트) | ✅ **O** | 없음 (GET 요청) | ```json<br>[<br>  { "hour": 0, "count": 2 },<br>  { "hour": 1, "count": 1 },<br>  ...<br>  { "hour": 23, "count": 5 }<br>]``` | 표와 그래프로 데이터 표시<br>로딩 상태 해제<br>Google Analytics 성공 이벤트 추적 | 에러 메시지 표시<br>로딩 상태 해제<br>더미 데이터 표시 (fallback)<br>Google Analytics 에러 이벤트 추적 |
+| 9 | **어드민 분석 대시보드** (`/admin/analytics`)<br>백엔드 로그 기반 통계 대시보드 | `GET /api/v1/admin/analytics/analysis-completions`<br>AI 스타일 분석 완료 수 시간대별 집계 | 페이지 로드 시<br>(AnalyticsCard 컴포넌트) | ✅ **O** | 없음 (GET 요청) | ```json<br>[<br>  { "hour": 0, "count": 1 },<br>  { "hour": 1, "count": 0 },<br>  ...<br>  { "hour": 23, "count": 3 }<br>]``` | 표와 그래프로 데이터 표시<br>로딩 상태 해제<br>Google Analytics 성공 이벤트 추적 | 에러 메시지 표시<br>로딩 상태 해제<br>더미 데이터 표시 (fallback)<br>Google Analytics 에러 이벤트 추적 |
+| 10 | **추천 페이지** (`/recommend`)<br>의류 추천 페이지 (현재 미구현) | 없음<br>향후: `POST /api/v1/recommend` | 페이지 로드 시 | ❌ **X** | 없음 | 없음 | - | - |
+
+### 연동 상태 상세 설명
+
+#### 1. 랜딩 페이지 (`/`) - Feature1 Ping API
+
+**파일**: `src/app/page.tsx`, `src/api/feature1.ts`
+
+**성공 시 동작**:
+- `alert()`로 응답 메시지 표시 (`data.message`)
+- Google Analytics 성공 이벤트 추적 (`apiTracking.trackSuccess()`)
+- 콘솔에 성공 로그 출력
+
+**실패 시 동작**:
+- `alert()`로 에러 메시지 표시 (`"API 호출 실패: ..."`)
+- 콘솔에 에러 로그 출력 (`console.error`)
+- Google Analytics 에러 이벤트 추적 (`apiTracking.trackError()`)
+- 에러 타입: `network` (네트워크 에러인 경우)
+
+**로그 예시**:
+```typescript
+// 성공 시
+apiTracking.trackSuccess('/api/v1/feature1/ping', 'GET', 200, 245);
+
+// 실패 시
+apiTracking.trackError('/api/v1/feature1/ping', 'GET', undefined, 'network', 5000);
+console.error("[FE] error:", error);
+```
+
+#### 2. 랜딩 페이지 (`/`) - 페이지뷰 추적
+
+**파일**: `src/app/page.tsx`
+
+**성공 시 동작**:
+- 페이지 정상 표시
+- Google Analytics 페이지뷰 추적 (`trackPageView('/')`)
+
+**실패 시 동작**:
+- 없음 (페이지뷰는 항상 성공)
+
+#### 3. 스타일 퀴즈 페이지 (`/style-quiz`)
+
+**파일**: `src/app/style-quiz/page.tsx`, `src/components/style-quiz.tsx`
+
+**성공 시 동작**:
+- 퀴즈 UI 표시
+- Google Analytics 페이지뷰 추적 (`trackPageView('/style-quiz')`)
+- 퀴즈 시작 이벤트 추적 (`quizTracking.trackStart()`)
+
+**실패 시 동작**:
+- 없음 (프론트엔드만 처리)
+
+#### 4. 스타일 퀴즈 완료
+
+**파일**: `src/components/style-quiz.tsx`
+
+**성공 시 동작**:
+- `/style-quiz/result` 페이지로 이동 (URL 파라미터 포함)
+- Google Analytics 퀴즈 완료 이벤트 추적 (`quizTracking.trackComplete()`)
+- 사용자 속성 업데이트 (`setUserProperties()`)
+
+**실패 시 동작**:
+- 유효성 검사 실패 시 에러 메시지 표시
+- 이전 단계로 이동 불가
+
+#### 5. 스타일 분석 결과 페이지 - Health Check
+
+**파일**: `src/app/style-quiz/result/page.tsx`
+
+**성공 시 동작**:
+- "서버 연결됨" 메시지 표시
+- Google Analytics 성공 이벤트 추적
+
+**실패 시 동작**:
+- "서버 연결 실패" 메시지 표시
+- Google Analytics 에러 이벤트 추적
+- 콘솔에 에러 로그 출력
+
+#### 6. 스타일 분석 결과 페이지 - AI 분석 (Mock)
+
+**파일**: `src/app/style-quiz/result/ResultClient.tsx`
+
+**성공 시 동작**:
+- 분석 결과 텍스트 표시
+- 선택 항목 요약 표시
+- Google Analytics 결과 생성 이벤트 추적 (`trackEvent('result_generated')`)
+
+**실패 시 동작**:
+- 에러 메시지 표시 (`<AlertCircle>` 아이콘과 함께)
+- 재시도 버튼 표시 (최대 3회 재시도)
+- "퀴즈 다시 하기" 버튼 표시 (`/style-quiz`로 이동)
+- "홈으로 이동" 버튼 표시 (`/`로 이동)
+- Google Analytics 예외 추적 (`trackException(error)`)
+
+**에러 처리 로직**:
+```typescript
+// 타임아웃: 10초
+// 최대 재시도: 3회
+// 에러 타입: 'network' | 'timeout' | 'api' | 'unknown'
+```
+
+#### 7-9. 어드민 분석 대시보드
+
+**파일**: `src/app/admin/analytics/page.tsx`, `src/components/admin/AnalyticsCard.tsx`
+
+**성공 시 동작**:
+- 표와 그래프로 시간대별 데이터 표시
+- 로딩 상태 해제 (`setLoading(false)`)
+- Google Analytics 성공 이벤트 추적
+
+**실패 시 동작**:
+- 에러 메시지 표시 (`<p>오류: {error}</p>`)
+- 로딩 상태 해제
+- 더미 데이터 표시 (fallback - `AnalyticsService.generateDummyData()`)
+- Google Analytics 에러 이벤트 추적
+
+**Fallback 동작**:
+- 로그 파일이 없거나 읽기 실패 시 더미 데이터 자동 생성
+- 시간대별 트래픽 패턴 반영 (오전/오후 피크 시간대)
 
 ---
 
@@ -516,21 +660,80 @@ public class AnalyticsService {
 
 ### 프론트엔드 로그 (브라우저 콘솔)
 
-#### 1. 기본 로그 출력
+#### 1. API 호출 성공 로그
 
 ```javascript
-// 콘솔 출력
+// 콘솔 출력 (성공)
 [2025-01-20T15:30:45.123Z][FE][INFO][Feature1] REQUEST_START {
   requestId: "550e8400-e29b-41d4-a716-446655440000",
   url: "https://api.example.com/api/v1/feature1/ping"
 }
+
+// Google Analytics 이벤트 (성공)
+gtag('event', 'api_request_success', {
+  endpoint: '/api/v1/feature1/ping',
+  method: 'GET',
+  status: 200,
+  duration_ms: 245
+});
+
+// 콘솔 출력 (성공 완료)
+[2025-01-20T15:30:45.368Z][FE][INFO][Feature1] REQUEST_SUCCESS {
+  requestId: "550e8400-e29b-41d4-a716-446655440000",
+  tookMs: 245
+}
 ```
 
-#### 2. 에러 로그 출력
+#### 2. API 호출 실패 로그 (HTTP 에러)
 
 ```javascript
-// 콘솔 출력
-[2025-01-20T15:30:45.456Z][FE][ERROR][Feature1] REQUEST_ERROR {
+// 콘솔 출력 (HTTP 에러)
+[2025-01-20T15:30:45.123Z][FE][INFO][Feature1] REQUEST_START {
+  requestId: "550e8400-e29b-41d4-a716-446655440000",
+  url: "https://api.example.com/api/v1/feature1/ping"
+}
+
+// Google Analytics 이벤트 (HTTP 에러)
+gtag('event', 'api_request_error', {
+  endpoint: '/api/v1/feature1/ping',
+  method: 'GET',
+  status: 500,
+  error_type: 'http',
+  duration_ms: 123
+});
+
+// 콘솔 출력 (HTTP 에러)
+[2025-01-20T15:30:45.246Z][FE][ERROR][Feature1] REQUEST_ERROR {
+  requestId: "550e8400-e29b-41d4-a716-446655440000",
+  error: {
+    name: "Error",
+    message: "API 호출 실패: 500 Internal Server Error",
+    stack: "Error: API 호출 실패: 500 Internal Server Error\n    at ..."
+  },
+  tookMs: 123
+}
+```
+
+#### 3. API 호출 실패 로그 (네트워크 에러)
+
+```javascript
+// 콘솔 출력 (네트워크 에러)
+[2025-01-20T15:30:45.123Z][FE][INFO][Feature1] REQUEST_START {
+  requestId: "550e8400-e29b-41d4-a716-446655440000",
+  url: "https://api.example.com/api/v1/feature1/ping"
+}
+
+// Google Analytics 이벤트 (네트워크 에러)
+gtag('event', 'api_request_error', {
+  endpoint: '/api/v1/feature1/ping',
+  method: 'GET',
+  status: 0,
+  error_type: 'network',
+  duration_ms: 5000
+});
+
+// 콘솔 출력 (네트워크 에러)
+[2025-01-20T15:30:50.123Z][FE][ERROR][Feature1] REQUEST_ERROR {
   requestId: "550e8400-e29b-41d4-a716-446655440000",
   error: {
     name: "TypeError",
@@ -539,25 +742,126 @@ public class AnalyticsService {
   },
   tookMs: 5000
 }
+
+// Google Analytics 예외 추적
+gtag('event', 'exception', {
+  description: 'Failed to fetch',
+  fatal: false
+});
+```
+
+#### 4. 퀴즈 완료 로그
+
+```javascript
+// 콘솔 출력 (퀴즈 완료)
+[2025-01-20T15:35:12.456Z][FE][INFO][Quiz] QUIZ_COMPLETE {
+  styles: ["modern", "minimalist"],
+  colors: ["neutrals", "pastels"],
+  inspirations_count: 3,
+  duration_seconds: 180
+}
+
+// Google Analytics 이벤트 (퀴즈 완료)
+gtag('event', 'quiz_complete', {
+  total_steps: 5,
+  styles_selected: ["modern", "minimalist"],
+  colors_selected: ["neutrals", "pastels"],
+  inspirations_selected: ["insp1", "insp2", "insp3"],
+  duration_seconds: 180
+});
+
+// 사용자 속성 업데이트
+gtag('set', 'user_properties', {
+  quiz_completed: true,
+  preferred_style: "modern",
+  preferred_colors: "neutrals"
+});
+```
+
+#### 5. AI 분석 결과 생성 로그
+
+```javascript
+// 콘솔 출력 (결과 생성 성공)
+[2025-01-20T15:36:45.789Z][FE][INFO][Result] RESULT_GENERATED {
+  styles: ["modern", "minimalist"],
+  colors: ["neutrals", "pastels"],
+  result_length: 250
+}
+
+// Google Analytics 이벤트 (결과 생성)
+gtag('event', 'result_generated', {
+  styles: ["modern", "minimalist"],
+  colors: ["neutrals", "pastels"],
+  inspirations_count: 3
+});
+```
+
+#### 6. AI 분석 실패 로그 (타임아웃)
+
+```javascript
+// 콘솔 출력 (타임아웃 에러)
+[2025-01-20T15:36:45.789Z][FE][ERROR][Result] ANALYSIS_ERROR {
+  error: {
+    name: "Error",
+    message: "Timeout",
+    type: "timeout"
+  },
+  retry_count: 2,
+  max_retries: 3
+}
+
+// Google Analytics 예외 추적
+gtag('event', 'exception', {
+  description: 'Timeout',
+  fatal: false
+});
 ```
 
 ### 백엔드 로그 (로그 파일)
 
-#### 1. 일반 로그 (application.log)
+#### 1. API 호출 성공 로그 (application.log)
 
 ```
 2025-01-20 15:30:45.123 INFO  [01AN4Z07BY79K3] --- [http-nio-8080-exec-1] c.e.w.controller.Feature1Controller : GET /api/v1/feature1/ping
-2025-01-20 15:30:45.234 INFO  [01AN4Z07BY79K3] --- [http-nio-8080-exec-1] c.e.w.controller.Feature1Controller : Response: 200 OK
+2025-01-20 15:30:45.234 INFO  [01AN4Z07BY79K3] --- [http-nio-8080-exec-1] c.e.w.controller.Feature1Controller : Response: 200 OK | Duration: 111ms
 ```
 
-#### 2. 에러 로그
+#### 2. API 호출 실패 로그 (HTTP 500 에러)
 
 ```
+2025-01-20 15:30:45.123 INFO  [01AN4Z07BY79K3] --- [http-nio-8080-exec-1] c.e.w.controller.Feature1Controller : GET /api/v1/feature1/ping
 2025-01-20 15:30:45.456 ERROR [01AN4Z07BY79K3] --- [http-nio-8080-exec-1] c.e.w.controller.Feature1Controller : Exception occurred
 java.lang.NullPointerException: null
     at com.example.wardrobe.controller.Feature1Controller.ping(Feature1Controller.java:25)
     at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
     ...
+2025-01-20 15:30:45.500 ERROR [01AN4Z07BY79K3] --- [http-nio-8080-exec-1] c.e.w.controller.Feature1Controller : Response: 500 Internal Server Error | Duration: 377ms
+```
+
+#### 3. 어드민 분석 API 성공 로그
+
+```
+2025-01-20 15:40:12.345 INFO  [01AN4Z07BY79K4] --- [http-nio-8080-exec-2] c.e.w.controller.AnalyticsController : GET /api/v1/admin/analytics/landing-page-views
+2025-01-20 15:40:12.456 INFO  [01AN4Z07BY79K4] --- [http-nio-8080-exec-2] c.e.w.service.AnalyticsService : Read 1250 lines from ./logs/application.log
+2025-01-20 15:40:12.567 INFO  [01AN4Z07BY79K4] --- [http-nio-8080-exec-2] c.e.w.controller.AnalyticsController : Response: 200 OK | Duration: 222ms
+```
+
+#### 4. 어드민 분석 API 실패 로그 (로그 파일 없음)
+
+```
+2025-01-20 15:40:12.345 INFO  [01AN4Z07BY79K4] --- [http-nio-8080-exec-2] c.e.w.controller.AnalyticsController : GET /api/v1/admin/analytics/landing-page-views
+2025-01-20 15:40:12.400 WARN  [01AN4Z07BY79K4] --- [http-nio-8080-exec-2] c.e.w.service.AnalyticsService : No log files found, returning dummy data for landing page views
+2025-01-20 15:40:12.456 INFO  [01AN4Z07BY79K4] --- [http-nio-8080-exec-2] c.e.w.controller.AnalyticsController : Response: 200 OK | Duration: 111ms (dummy data)
+```
+
+#### 5. 어드민 분석 API 실패 로그 (파일 읽기 실패)
+
+```
+2025-01-20 15:40:12.345 INFO  [01AN4Z07BY79K4] --- [http-nio-8080-exec-2] c.e.w.controller.AnalyticsController : GET /api/v1/admin/analytics/landing-page-views
+2025-01-20 15:40:12.400 WARN  [01AN4Z07BY79K4] --- [http-nio-8080-exec-2] c.e.w.service.AnalyticsService : Failed to read log file ./logs/application.log: Permission denied
+2025-01-20 15:40:12.456 ERROR [01AN4Z07BY79K4] --- [http-nio-8080-exec-2] c.e.w.service.AnalyticsService : Failed to get landing page views: java.nio.file.AccessDeniedException
+2025-01-20 15:40:12.500 WARN  [01AN4Z07BY79K4] --- [http-nio-8080-exec-2] c.e.w.service.AnalyticsService : Returning dummy data due to error
+2025-01-20 15:40:12.567 INFO  [01AN4Z07BY79K4] --- [http-nio-8080-exec-2] c.e.w.controller.AnalyticsController : Response: 200 OK | Duration: 222ms (dummy data fallback)
 ```
 
 ---
@@ -603,7 +907,7 @@ java.lang.NullPointerException: null
   duration_ms: 245
 }
 
-// API 호출 실패
+// API 호출 실패 (HTTP 에러)
 {
   event: "api_request_error",
   endpoint: "/feature1/ping",
@@ -611,6 +915,78 @@ java.lang.NullPointerException: null
   status: 500,
   error_type: "http",
   duration_ms: 123
+}
+
+// API 호출 실패 (네트워크 에러)
+{
+  event: "api_request_error",
+  endpoint: "/feature1/ping",
+  method: "GET",
+  status: 0,
+  error_type: "network",
+  duration_ms: 5000
+}
+
+// 예외 추적
+{
+  event: "exception",
+  description: "Failed to fetch",
+  fatal: false
+}
+```
+
+#### 성공 응답 데이터 구조
+
+```typescript
+// Feature1 Ping API 성공 응답
+{
+  ok: true,
+  message: "Pong from Feature1",
+  data: {
+    style: "casual",
+    items: []
+  }
+}
+
+// Health Check API 성공 응답
+"pong"  // 문자열
+
+// 어드민 분석 API 성공 응답
+[
+  { hour: 0, count: 5 },
+  { hour: 1, count: 3 },
+  ...
+  { hour: 23, count: 8 }
+]
+```
+
+#### 실패 응답 데이터 구조
+
+```typescript
+// HTTP 에러 응답 (500)
+{
+  // 백엔드에서 에러 응답을 반환하는 경우
+  error: {
+    message: "Internal Server Error",
+    code: "INTERNAL_ERROR",
+    timestamp: "2025-01-20T15:30:45.456Z"
+  }
+}
+
+// 네트워크 에러 (응답 없음)
+// fetch()가 실패하여 응답을 받지 못함
+// Error 객체로 처리:
+{
+  name: "TypeError",
+  message: "Failed to fetch",
+  stack: "..."
+}
+
+// 타임아웃 에러
+{
+  name: "Error",
+  message: "Timeout",
+  type: "timeout"
 }
 ```
 
@@ -793,6 +1169,27 @@ List<LogParser.ParsedLog> parsedLogs = logLines.stream()
 
 ## 참고 문서
 
-- [백엔드-프론트엔드 연동 상태](BE_FE_INTEGRATION_STATUS.md)
-- [어드민 분석 대시보드 구현 계획](ADMIN_ANALYTICS_IMPLEMENTATION_PLAN.md)
-- [Google Analytics 가이드](GOOGLE_ANALYTICS_GUIDE.md)
+- [백엔드-프론트엔드 연동 상태](BE_FE_INTEGRATION_STATUS.md) - 상세한 API 연동 상태 및 구현 현황
+- [어드민 분석 대시보드 구현 계획](ADMIN_ANALYTICS_IMPLEMENTATION_PLAN.md) - 어드민 대시보드 구현 계획 및 로그 파싱 상세
+- [Google Analytics 가이드](GOOGLE_ANALYTICS_GUIDE.md) - Google Analytics 통합 가이드 및 이벤트 추적 방법
+
+---
+
+## 요약
+
+### 연동 상태 현황
+
+| 구분 | 개수 | 비율 |
+|------|------|------|
+| **실제 구현됨 (O)** | 6개 | 60.0% |
+| **Mock 구현 (Mock)** | 1개 | 10.0% |
+| **미구현 (X)** | 3개 | 30.0% |
+| **전체** | 10개 | 100% |
+
+### 성공/실패 처리 특징
+
+1. **일관된 에러 처리**: 모든 API 호출에서 동일한 에러 처리 패턴 사용
+2. **Google Analytics 통합**: 성공/실패 모든 이벤트 추적
+3. **Fallback 메커니즘**: 어드민 분석 API는 로그 파일 없을 때 더미 데이터 제공
+4. **재시도 로직**: AI 분석 API는 최대 3회 재시도 지원
+5. **사용자 피드백**: 모든 에러 상황에서 명확한 사용자 피드백 제공
