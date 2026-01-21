@@ -144,7 +144,7 @@
 
 ```
 백엔드 로그 (application.log):
-2025-01-20 15:30:45.123 INFO  [01AN4Z07BY79K3] --- [http-nio-8080-exec-1] c.e.w.common.logging.ApiLogger : API Request: GET /api/v1/feature1/ping | RequestId: 01AN4Z07BY79K3
+2025-01-20 15:30:45.123 INFO  [01AN4Z07BY79K3] --- [http-nio-8080-exec-1] c.e.w.controller.Feature1Controller : GET /api/v1/feature1/ping | RequestId: 01AN4Z07BY79K3
 
 프론트엔드 로그 (브라우저 콘솔 → 백엔드로 전송 시):
 [2025-01-20T15:30:45.123Z][FE][INFO][Feature1] REQUEST_START { requestId: "550e8400-...", url: "https://..." }
@@ -599,7 +599,7 @@ interface WeeklyAnalytics {
 ### 백엔드 로그 형식
 
 ```
-2025-01-20 15:30:45.123 INFO  [01AN4Z07BY79K3] --- [http-nio-8080-exec-1] c.e.w.common.logging.ApiLogger : API Request: GET /api/v1/feature1/ping | RequestId: 01AN4Z07BY79K3
+2025-01-20 15:30:45.123 INFO  [01AN4Z07BY79K3] --- [http-nio-8080-exec-1] c.e.w.controller.Feature1Controller : GET /api/v1/feature1/ping | RequestId: 01AN4Z07BY79K3
 ```
 
 **정규표현식**:

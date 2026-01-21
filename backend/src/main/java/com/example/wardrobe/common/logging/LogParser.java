@@ -18,7 +18,9 @@ public class LogParser {
     /**
      * 백엔드 로그 패턴
      * 
-     * 예시: "2025-01-20 15:30:45.123 INFO  [01AN4Z07BY79K3] --- [http-nio-8080-exec-1] c.e.w.common.logging.ApiLogger : API Request: GET /api/v1/feature1/ping | RequestId: 01AN4Z07BY79K3"
+     * 예시: "2025-01-20 15:30:45.123 INFO  [01AN4Z07BY79K3] --- [http-nio-8080-exec-1] c.e.w.controller.Feature1Controller : GET /api/v1/feature1/ping | RequestId: 01AN4Z07BY79K3"
+     * 
+     * 참고: 실제 로그는 Spring Boot 기본 Logback 로거를 사용하며, 컨트롤러나 서비스 클래스에서 직접 로깅합니다.
      */
     private static final Pattern BACKEND_LOG_PATTERN = Pattern.compile(
         "^(\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}\\.\\d{3}) " +  // Group 1: timestamp
