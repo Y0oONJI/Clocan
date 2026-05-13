@@ -1,4 +1,4 @@
-# 🎨 Clocan
+# 🎨 Clocan - AI 서비스 기획/개발 직장인 과정 
 
 > Your digital wardrobe for endless style inspiration
 
